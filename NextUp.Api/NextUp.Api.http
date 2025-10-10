@@ -1,0 +1,6 @@
+@NextUp.Api_HostAddress = http://localhost:5164
+
+GET {{NextUp.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
