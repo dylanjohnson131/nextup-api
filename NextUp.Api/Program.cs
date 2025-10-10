@@ -3,67 +3,44 @@ using NextUp.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Configure EF Core with Npgsql (PostgreSQL)
+// Read connection string: prefer user-secrets key, then appsettings, then a safe default for dev
+var connectionString = builder.Configuration.GetConnectionString("NextUpDbConnectionString")
+					   ?? builder.Configuration.GetConnectionString("DefaultConnection")
+					   ?? "Host=localhost;Database=NextUp;Username=postgres;Password=postgres";
+
+// Add services
+builder.Services.AddDbContext<NextUpDbContext>(options =>
+{
+	options.UseNpgsql(connectionString);
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Prefer a user-secret key named 'ConnectionStrings:NextUpDbConnectionString',
-// then fall back to the usual 'DefaultConnection' key and finally to a local default.
-var connectionString = builder.Configuration.GetConnectionString("NextUpDbConnectionString")
-                       ?? builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? "Host=localhost;Database=nextup;Username=postgres;Password=postgres";
-
-builder.Services.AddDbContext<NextUpDbContext>(options =>
-{
-    options.UseNpgsql(connectionString);
-});
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Enable Swagger in Development
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Redirect root to Swagger UI for convenience
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-// Minimal EF demo endpoints
+// Minimal API endpoints for Users
 app.MapGet("/users", async (NextUpDbContext db) =>
 {
-    return await db.Users.ToListAsync();
+	var users = await db.Users.ToListAsync();
+	return Results.Ok(users);
 });
 
-app.MapPost("/users", async (NextUpDbContext db, NextUp.Api.Data.User user) =>
+app.MapPost("/users", async (NextUpDbContext db, User user) =>
 {
-    db.Users.Add(user);
-    await db.SaveChangesAsync();
-    return Results.Created($"/users/{user.Id}", user);
+	db.Users.Add(user);
+	await db.SaveChangesAsync();
+	return Results.Created($"/users/{user.Id}", user);
 });
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
