@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/NextUp.Api/bin/Debug/net9.0/NextUp.Api.dll",
+            "program": "${workspaceFolder}/NextUp.Api/bin/Debug/net8.0/NextUp.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/NextUp.Api",
             "stopAtEntry": false,
