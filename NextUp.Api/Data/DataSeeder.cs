@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using NextUp.Models;
+using NextUp.Api.Services;
 
 namespace NextUp.Data
 {
     public static class DataSeeder
     {
-        public static async Task SeedAsync(NextUpDbContext context)
+        public static async Task SeedAsync(NextUpDbContext context, IPasswordService passwordService)
         {
             // Check if data already exists
             if (await context.Users.AnyAsync())
@@ -19,7 +20,7 @@ namespace NextUp.Data
                 FirstName = "Mike",
                 LastName = "Johnson",
                 Email = "coach.johnson@nextup.com",
-                PasswordHash = "hashed_password_123", // In production, use proper hashing
+                PasswordHash = passwordService.HashPassword("password123"),
                 Role = "Coach",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -30,7 +31,7 @@ namespace NextUp.Data
                 FirstName = "Sarah",
                 LastName = "Williams",
                 Email = "coach.williams@nextup.com",
-                PasswordHash = "hashed_password_456",
+                PasswordHash = passwordService.HashPassword("password456"),
                 Role = "Coach",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -39,12 +40,12 @@ namespace NextUp.Data
             // Create Player Users
             var playerUsers = new List<User>
             {
-                new User { FirstName = "Jake", LastName = "Thompson", Email = "jake.thompson@student.com", PasswordHash = "hashed_password_789", Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Marcus", LastName = "Davis", Email = "marcus.davis@student.com", PasswordHash = "hashed_password_101", Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Alex", LastName = "Rodriguez", Email = "alex.rodriguez@student.com", PasswordHash = "hashed_password_102", Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Tyler", LastName = "Brown", Email = "tyler.brown@student.com", PasswordHash = "hashed_password_103", Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Jordan", LastName = "Miller", Email = "jordan.miller@student.com", PasswordHash = "hashed_password_104", Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Ryan", LastName = "Wilson", Email = "ryan.wilson@student.com", PasswordHash = "hashed_password_105", Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+                new User { FirstName = "Jake", LastName = "Thompson", Email = "jake.thompson@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Marcus", LastName = "Davis", Email = "marcus.davis@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Alex", LastName = "Rodriguez", Email = "alex.rodriguez@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Tyler", LastName = "Brown", Email = "tyler.brown@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Jordan", LastName = "Miller", Email = "jordan.miller@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Ryan", LastName = "Wilson", Email = "ryan.wilson@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
             };
 
             // Add all users

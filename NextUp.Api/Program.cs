@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
 using System.Security.Claims;
@@ -31,6 +32,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
+// Add password service
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+
 // Configure API services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -59,7 +63,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<NextUpDbContext>();
-    await DataSeeder.SeedAsync(context);
+    var passwordService = scope.ServiceProvider.GetRequiredService<IPasswordService>();
+    await DataSeeder.SeedAsync(context, passwordService);
 }
 
 // Configure middleware pipeline
@@ -80,12 +85,11 @@ app.MapGet("/", () => Results.Redirect("/swagger"));
 app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Service = "NextUp API" }));
 
 // Simple auth endpoints
-app.MapPost("/auth/login", async (LoginRequest request, NextUpDbContext db, HttpContext httpContext) =>
+app.MapPost("/auth/login", async (LoginRequest request, NextUpDbContext db, IPasswordService passwordService, HttpContext httpContext) =>
 {
-    // Simple authentication - replace with proper password hashing in production
     var user = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-    if (user == null)
+    if (user == null || !passwordService.VerifyPassword(request.Password, user.PasswordHash))
     {
         return Results.Unauthorized();
     }
