@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using NextUp.Api.DTOs;
+using NextUp.Api.Endpoints;
 using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
@@ -132,21 +134,16 @@ app.MapGet("/auth/me", (ClaimsPrincipal user) =>
     });
 }).RequireAuthorization();
 
-// User endpoints
-app.MapGet("/users", async (NextUpDbContext db) =>
-{
-    var users = await db.Users.ToListAsync();
-    return Results.Ok(users);
-});
-
-app.MapPost("/users", async (User user, NextUpDbContext db) =>
-{
-    db.Users.Add(user);
-    await db.SaveChangesAsync();
-    return Results.Created($"/users/{user.UserId}", user);
-});
+// Register endpoint groups
+app.MapTeamEndpoints();
+app.MapPlayerEndpoints();
+app.MapAuthEndpoints();
+app.MapCoachEndpoints();
+app.MapGameEndpoints();
+app.MapStatsEndpoints();
+app.MapPlayerNotesEndpoints();
+app.MapPlayerGoalsEndpoints();
+app.MapGameNotesEndpoints();
+app.MapUserEndpoints();
 
 app.Run();
-
-// Login request model
-public record LoginRequest(string Email, string Password);

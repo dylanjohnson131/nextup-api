@@ -1,0 +1,45 @@
+namespace NextUp.Api.DTOs;
+
+public record CreatePlayerStatsRequest(
+    int PlayerId,
+    int GameId,
+    int PassingYards,
+    int PassingTouchdowns,
+    int Interceptions,
+    int RushingYards,
+    int RushingTouchdowns,
+    int ReceivingYards,
+    int ReceivingTouchdowns,
+    int Receptions,
+    int Tackles,
+    int Assists,
+    int Sacks,
+    int ForcedFumbles,
+    int InterceptionsDef,
+    int FieldGoalsMade,
+    int FieldGoalsAttempted,
+    int ExtraPointsMade,
+    int ExtraPointsAttempted,
+    int MinutesPlayed
+);
+
+public record UpdatePlayerStatsRequest(
+    int? PassingYards,
+    int? PassingTouchdowns,
+    int? Interceptions,
+    int? RushingYards,
+    int? RushingTouchdowns,
+    int? ReceivingYards,
+    int? ReceivingTouchdowns,
+    int? Receptions,
+    int? Tackles,
+    int? Assists,
+    int? Sacks,
+    int? ForcedFumbles,
+    int? InterceptionsDef,
+    int? FieldGoalsMade,
+    int? FieldGoalsAttempted,
+    int? ExtraPointsMade,
+    int? ExtraPointsAttempted,
+    int? MinutesPlayed
+);
