@@ -55,6 +55,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Seed the database with test data
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<NextUpDbContext>();
+    await DataSeeder.SeedAsync(context);
+}
+
 // Configure middleware pipeline
 if (app.Environment.IsDevelopment())
 {
