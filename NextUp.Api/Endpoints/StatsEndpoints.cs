@@ -82,7 +82,7 @@ public static class StatsEndpoints
         });
 
         // POST /api/stats
-        group.MapPost("/", async (CreatePlayerStatsRequest request, NextUpDbContext db) =>
+    group.MapPost("/", async (CreatePlayerStatsRequest request, NextUpDbContext db) =>
         {
             var player = await db.Players.FindAsync(request.PlayerId);
             var game = await db.Games.FindAsync(request.GameId);
@@ -118,10 +118,10 @@ public static class StatsEndpoints
             await db.SaveChangesAsync();
 
             return Results.Created($"/api/stats/{stats.PlayerGameStatsId}", new { stats.PlayerGameStatsId, stats.PlayerId, stats.GameId });
-        });
+        }).RequireAuthorization("CoachOnly");
 
         // PUT /api/stats/{id}
-        group.MapPut("/{id:int}", async (int id, UpdatePlayerStatsRequest request, NextUpDbContext db) =>
+    group.MapPut("/{id:int}", async (int id, UpdatePlayerStatsRequest request, NextUpDbContext db) =>
         {
             var s = await db.PlayerGameStats.FindAsync(id);
             if (s == null)
@@ -149,10 +149,10 @@ public static class StatsEndpoints
 
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Stats updated", s.PlayerGameStatsId });
-        });
+        }).RequireAuthorization("CoachOnly");
 
         // DELETE /api/stats/{id}
-        group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
+    group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var s = await db.PlayerGameStats.FindAsync(id);
             if (s == null)
@@ -160,6 +160,6 @@ public static class StatsEndpoints
             db.PlayerGameStats.Remove(s);
             await db.SaveChangesAsync();
             return Results.Ok(new { message = $"Stats {id} deleted." });
-        });
+        }).RequireAuthorization("CoachOnly");
     }
 }

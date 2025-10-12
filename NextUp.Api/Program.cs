@@ -32,7 +32,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CoachOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Coach"));
+    options.AddPolicy("PlayerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Player"));
+});
 
 // Add password service
 builder.Services.AddScoped<IPasswordService, PasswordService>();

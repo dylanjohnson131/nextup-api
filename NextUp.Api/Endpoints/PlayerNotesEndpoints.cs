@@ -47,7 +47,7 @@ public static class PlayerNotesEndpoints
             });
         });
 
-        group.MapPost("/", async (PlayerNote request, NextUpDbContext db) =>
+    group.MapPost("/", async (PlayerNote request, NextUpDbContext db) =>
         {
             // Minimal validation
             var player = await db.Players.FindAsync(request.PlayerId);
@@ -60,9 +60,9 @@ public static class PlayerNotesEndpoints
             db.PlayerNotes.Add(request);
             await db.SaveChangesAsync();
             return Results.Created($"/api/player-notes/{request.PlayerNoteId}", new { request.PlayerNoteId });
-        });
+        }).RequireAuthorization("CoachOnly");
 
-        group.MapPut("/{id:int}", async (int id, PlayerNote update, NextUpDbContext db) =>
+    group.MapPut("/{id:int}", async (int id, PlayerNote update, NextUpDbContext db) =>
         {
             var n = await db.PlayerNotes.FindAsync(id);
             if (n == null) return Results.NotFound(new { error = $"Player note with ID {id} not found." });
@@ -72,15 +72,15 @@ public static class PlayerNotesEndpoints
             n.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Player note updated", n.PlayerNoteId });
-        });
+        }).RequireAuthorization("CoachOnly");
 
-        group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
+    group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var n = await db.PlayerNotes.FindAsync(id);
             if (n == null) return Results.NotFound(new { error = $"Player note with ID {id} not found." });
             db.PlayerNotes.Remove(n);
             await db.SaveChangesAsync();
             return Results.Ok(new { message = $"Player note {id} deleted." });
-        });
+        }).RequireAuthorization("CoachOnly");
     }
 }

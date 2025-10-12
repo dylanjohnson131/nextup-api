@@ -175,7 +175,7 @@ namespace NextUp.Api.Endpoints
                     CoachName = $"{coachUser.FirstName} {coachUser.LastName}",
                     CoachEmail = coachUser.Email
                 });
-            });
+            }).RequireAuthorization("CoachOnly");
 
             // PUT /api/teams/{id} - Update team
             teamGroup.MapPut("/{id:int}", async (int id, UpdateTeamRequest request, NextUpDbContext db) =>
@@ -203,7 +203,7 @@ namespace NextUp.Api.Endpoints
                     team.IsPublic,
                     UpdatedAt = team.UpdatedAt
                 });
-            });
+            }).RequireAuthorization("CoachOnly");
 
             // DELETE /api/teams/{id} - Delete team
             teamGroup.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
@@ -241,7 +241,7 @@ namespace NextUp.Api.Endpoints
                 db.Teams.Remove(team);
                 await db.SaveChangesAsync();
                 return Results.Ok(new { message = $"Team '{team.Name}' has been deleted successfully." });
-            });
+            }).RequireAuthorization("CoachOnly");
         }
     }
 }

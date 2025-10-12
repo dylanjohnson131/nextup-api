@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NextUp.Data;
 using NextUp.Models;
+using System.Security.Claims;
 
 namespace NextUp.Api.Endpoints;
 
@@ -57,12 +58,25 @@ public static class PlayerGoalsEndpoints
             db.PlayerGoals.Add(request);
             await db.SaveChangesAsync();
             return Results.Created($"/api/player-goals/{request.PlayerGoalId}", new { request.PlayerGoalId });
-        });
+        }).RequireAuthorization("CoachOnly");
 
-        group.MapPut("/{id:int}", async (int id, PlayerGoal update, NextUpDbContext db) =>
+        group.MapPut("/{id:int}", async (int id, PlayerGoal update, NextUpDbContext db, ClaimsPrincipal user) =>
         {
             var g = await db.PlayerGoals.FindAsync(id);
             if (g == null) return Results.NotFound(new { error = $"Player goal with ID {id} not found." });
+
+            // If the user is a Player, ensure they only update their own goal
+            var role = user.FindFirst(ClaimTypes.Role)?.Value;
+            if (role == "Player")
+            {
+                var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
+                var player = await db.Players.FirstOrDefaultAsync(p => p.PlayerId == g.PlayerId);
+                if (player == null || player.UserId.ToString() != userId)
+                {
+                    return Results.Forbid();
+                }
+            }
 
             if (update.GoalType != null) g.GoalType = update.GoalType;
             if (update.TargetValue != 0) g.TargetValue = update.TargetValue; // simple update; 0 means leave as-is if they didn't intend
@@ -71,7 +85,7 @@ public static class PlayerGoalsEndpoints
             g.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Player goal updated", g.PlayerGoalId });
-        });
+        }).RequireAuthorization();
 
         group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
         {
@@ -80,6 +94,6 @@ public static class PlayerGoalsEndpoints
             db.PlayerGoals.Remove(g);
             await db.SaveChangesAsync();
             return Results.Ok(new { message = $"Player goal {id} deleted." });
-        });
+        }).RequireAuthorization("CoachOnly");
     }
 }
