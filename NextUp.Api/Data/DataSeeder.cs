@@ -74,7 +74,54 @@ namespace NextUp.Data
                 UpdatedAt = DateTime.UtcNow
             };
 
-            context.Teams.AddRange(team1, team2);
+            // Create additional coach users for opposing teams
+            var opposingCoach1 = new User
+            {
+                FirstName = "Mark",
+                LastName = "Stevens",
+                Email = "coach.stevens@stormriders.com",
+                PasswordHash = passwordService.HashPassword("password789"),
+                Role = "Coach",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var opposingCoach2 = new User
+            {
+                FirstName = "Lisa",
+                LastName = "Martinez",
+                Email = "coach.martinez@eaglesfc.com",
+                PasswordHash = passwordService.HashPassword("password101"),
+                Role = "Coach",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            context.Users.AddRange(opposingCoach1, opposingCoach2);
+            await context.SaveChangesAsync();
+
+            // Create additional opposing teams for scouting
+            var team3 = new Team
+            {
+                Name = "Storm Riders",
+                Location = "Westside Sports Complex",
+                CoachId = opposingCoach1.UserId,
+                IsPublic = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var team4 = new Team
+            {
+                Name = "Eagles FC",
+                Location = "Central Athletic Center",
+                CoachId = opposingCoach2.UserId,
+                IsPublic = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            context.Teams.AddRange(team1, team2, team3, team4);
             await context.SaveChangesAsync();
 
             // Create Coach records
@@ -123,6 +170,46 @@ namespace NextUp.Data
 
             context.Players.AddRange(team1Players);
             context.Players.AddRange(team2Players);
+
+            // Create additional players for opposing teams (Storm Riders & Eagles FC)
+            var opposingPlayerUsers = new List<User>
+            {
+                // Storm Riders players
+                new User { FirstName = "Max", LastName = "Thunder", Email = "max.thunder@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Lightning", LastName = "Storm", Email = "lightning.storm@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Bolt", LastName = "Rider", Email = "bolt.rider@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Flash", LastName = "Speed", Email = "flash.speed@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                
+                // Eagles FC players
+                new User { FirstName = "Talon", LastName = "Eagle", Email = "talon.eagle@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Wing", LastName = "Soar", Email = "wing.soar@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Hawk", LastName = "Eyes", Email = "hawk.eyes@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Swift", LastName = "Flight", Email = "swift.flight@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            };
+
+            context.Users.AddRange(opposingPlayerUsers);
+            await context.SaveChangesAsync();
+
+            // Create Storm Riders players
+            var stormRidersPlayers = new List<Player>
+            {
+                new Player { UserId = opposingPlayerUsers[0].UserId, TeamId = team3.TeamId, Position = "Quarterback", Age = 18, Height = "6'3\"", Weight = 210, JerseyNumber = 7, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new Player { UserId = opposingPlayerUsers[1].UserId, TeamId = team3.TeamId, Position = "Wide Receiver", Age = 17, Height = "6'1\"", Weight = 185, JerseyNumber = 11, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new Player { UserId = opposingPlayerUsers[2].UserId, TeamId = team3.TeamId, Position = "Running Back", Age = 18, Height = "5'10\"", Weight = 190, JerseyNumber = 24, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new Player { UserId = opposingPlayerUsers[3].UserId, TeamId = team3.TeamId, Position = "Linebacker", Age = 19, Height = "6'2\"", Weight = 205, JerseyNumber = 55, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            };
+
+            // Create Eagles FC players
+            var eaglesFCPlayers = new List<Player>
+            {
+                new Player { UserId = opposingPlayerUsers[4].UserId, TeamId = team4.TeamId, Position = "Quarterback", Age = 17, Height = "6'2\"", Weight = 200, JerseyNumber = 12, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new Player { UserId = opposingPlayerUsers[5].UserId, TeamId = team4.TeamId, Position = "Wide Receiver", Age = 18, Height = "6'0\"", Weight = 180, JerseyNumber = 3, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new Player { UserId = opposingPlayerUsers[6].UserId, TeamId = team4.TeamId, Position = "Safety", Age = 17, Height = "5'11\"", Weight = 175, JerseyNumber = 26, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new Player { UserId = opposingPlayerUsers[7].UserId, TeamId = team4.TeamId, Position = "Defensive End", Age = 18, Height = "6'4\"", Weight = 215, JerseyNumber = 99, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            };
+
+            context.Players.AddRange(stormRidersPlayers);
+            context.Players.AddRange(eaglesFCPlayers);
             await context.SaveChangesAsync();
 
             // Create a sample game
@@ -185,7 +272,24 @@ namespace NextUp.Data
                 }
             };
 
+            // Add some mock game stats for opposing teams to make scouting data more realistic
+            var opposingTeamStats = new List<PlayerGameStats>
+            {
+                // Storm Riders stats
+                new PlayerGameStats { PlayerId = stormRidersPlayers[0].PlayerId, GameId = game.GameId, PassingYards = 280, PassingTouchdowns = 3, MinutesPlayed = 60, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new PlayerGameStats { PlayerId = stormRidersPlayers[1].PlayerId, GameId = game.GameId, ReceivingYards = 120, ReceivingTouchdowns = 2, MinutesPlayed = 55, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new PlayerGameStats { PlayerId = stormRidersPlayers[2].PlayerId, GameId = game.GameId, RushingYards = 95, RushingTouchdowns = 1, MinutesPlayed = 50, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new PlayerGameStats { PlayerId = stormRidersPlayers[3].PlayerId, GameId = game.GameId, Tackles = 8, Sacks = 2, MinutesPlayed = 60, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                
+                // Eagles FC stats  
+                new PlayerGameStats { PlayerId = eaglesFCPlayers[0].PlayerId, GameId = game.GameId, PassingYards = 195, PassingTouchdowns = 1, Interceptions = 2, MinutesPlayed = 58, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new PlayerGameStats { PlayerId = eaglesFCPlayers[1].PlayerId, GameId = game.GameId, ReceivingYards = 75, ReceivingTouchdowns = 1, MinutesPlayed = 52, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new PlayerGameStats { PlayerId = eaglesFCPlayers[2].PlayerId, GameId = game.GameId, Tackles = 6, InterceptionsDef = 1, MinutesPlayed = 60, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new PlayerGameStats { PlayerId = eaglesFCPlayers[3].PlayerId, GameId = game.GameId, Tackles = 5, Sacks = 1, MinutesPlayed = 58, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            };
+
             context.PlayerGameStats.AddRange(gameStats);
+            context.PlayerGameStats.AddRange(opposingTeamStats);
             await context.SaveChangesAsync();
         }
     }
