@@ -138,7 +138,8 @@ app.MapGet("/auth/me", (ClaimsPrincipal user) =>
     return Results.Ok(new
     {
         IsAuthenticated = true,
-        Name = user.Identity.Name,
+        UserId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),
+        Name = user.Identity?.Name ?? "",
         Email = user.FindFirst(ClaimTypes.Email)?.Value,
         Role = user.FindFirst(ClaimTypes.Role)?.Value
     });

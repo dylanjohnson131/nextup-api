@@ -3,6 +3,7 @@ using NextUp.Api.DTOs;
 using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
+using System.Security.Claims;
 
 namespace NextUp.Api.Endpoints;
 
@@ -11,6 +12,38 @@ public static class PlayerEndpoints
     public static void MapPlayerEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/players");
+
+        // GET /api/players/me - get current player's data
+        group.MapGet("/me", async (NextUpDbContext db, ClaimsPrincipal user) =>
+        {
+            if (!user.Identity?.IsAuthenticated ?? true)
+            {
+                return Results.Unauthorized();
+            }
+
+            var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+            var player = await db.Players
+                .Include(p => p.User)
+                .Include(p => p.Team)
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+
+            if (player == null)
+                return Results.NotFound(new { error = "Player profile not found for current user." });
+
+            return Results.Ok(new
+            {
+                player.PlayerId,
+                Name = $"{player.User.FirstName} {player.User.LastName}",
+                Email = player.User.Email,
+                player.Position,
+                player.Age,
+                player.Height,
+                player.Weight,
+                player.JerseyNumber,
+                Team = new { player.Team.TeamId, player.Team.Name, player.Team.Location }
+            });
+        });
 
         // GET /api/players - list players
         group.MapGet("/", async (NextUpDbContext db) =>
