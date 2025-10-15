@@ -33,6 +33,35 @@ public static class GameEndpoints
             }));
         });
 
+        // GET /api/games/upcoming/{teamId}
+        group.MapGet("/upcoming/{teamId:int}", async (int teamId, NextUpDbContext db) =>
+        {
+            var upcomingGames = await db.Games
+                .Include(g => g.HomeTeam)
+                .Include(g => g.AwayTeam)
+                .Where(g => (g.HomeTeamId == teamId || g.AwayTeamId == teamId) 
+                           && g.GameDate > DateTime.UtcNow 
+                           && g.Status == "Scheduled")
+                .OrderBy(g => g.GameDate)
+                .Take(5) // Get next 5 upcoming games
+                .ToListAsync();
+
+            return Results.Ok(upcomingGames.Select(g => new
+            {
+                g.GameId,
+                g.GameDate,
+                g.Location,
+                g.Status,
+                g.Season,
+                HomeTeam = new { g.HomeTeamId, g.HomeTeam.Name, g.HomeTeam.Location },
+                AwayTeam = new { g.AwayTeamId, g.AwayTeam.Name, g.AwayTeam.Location },
+                IsHome = g.HomeTeamId == teamId,
+                Opponent = g.HomeTeamId == teamId 
+                    ? new { TeamId = g.AwayTeamId, g.AwayTeam.Name, g.AwayTeam.Location }
+                    : new { TeamId = g.HomeTeamId, g.HomeTeam.Name, g.HomeTeam.Location }
+            }));
+        });
+
         // GET /api/games/{id}
         group.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
         {
