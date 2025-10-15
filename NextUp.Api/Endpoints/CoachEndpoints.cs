@@ -3,6 +3,8 @@ using NextUp.Api.DTOs;
 using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
+using System.Security.Claims;
+using System.Security.Claims;
 
 namespace NextUp.Api.Endpoints;
 
@@ -11,6 +13,36 @@ public static class CoachEndpoints
     public static void MapCoachEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/coaches");
+
+        // GET /api/coaches/me
+        group.MapGet("/me", async (NextUpDbContext db, ClaimsPrincipal user) =>
+        {
+            if (!user.Identity?.IsAuthenticated ?? true)
+            {
+                return Results.Unauthorized();
+            }
+
+            var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var coach = await db.Coaches
+                .Include(c => c.User)
+                .Include(c => c.Team)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (coach == null)
+                return Results.NotFound(new { error = "Coach profile not found." });
+
+            return Results.Ok(new
+            {
+                coach.CoachId,
+                Name = coach.User != null ? $"{coach.User.FirstName} {coach.User.LastName}" : null,
+                Email = coach.User?.Email,
+                coach.ExperienceYears,
+                coach.Specialty,
+                coach.Certification,
+                coach.Bio,
+                Team = coach.Team != null ? new { coach.Team.TeamId, coach.Team.Name, coach.Team.Location } : null
+            });
+        }).RequireAuthorization();
 
         // GET /api/coaches
         group.MapGet("/", async (NextUpDbContext db) =>
@@ -32,6 +64,36 @@ public static class CoachEndpoints
                 Team = c.Team != null ? new { c.Team.TeamId, c.Team.Name, c.Team.Location } : null
             }));
         });
+
+        // GET /api/coaches/me
+        group.MapGet("/me", async (NextUpDbContext db, System.Security.Claims.ClaimsPrincipal user) =>
+        {
+            if (!user.Identity?.IsAuthenticated ?? true)
+            {
+                return Results.Unauthorized();
+            }
+
+            var userId = int.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var coach = await db.Coaches
+                .Include(c => c.User)
+                .Include(c => c.Team)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (coach == null)
+                return Results.NotFound(new { error = "Coach profile not found." });
+
+            return Results.Ok(new
+            {
+                coach.CoachId,
+                Name = coach.User != null ? $"{coach.User.FirstName} {coach.User.LastName}" : null,
+                Email = coach.User?.Email,
+                coach.ExperienceYears,
+                coach.Specialty,
+                coach.Certification,
+                coach.Bio,
+                Team = coach.Team != null ? new { coach.Team.TeamId, coach.Team.Name, coach.Team.Location } : null
+            });
+        }).RequireAuthorization();
 
         // GET /api/coaches/{id}
         group.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
@@ -155,8 +217,39 @@ public static class CoachEndpoints
             return Results.Ok(new { message = "Coach updated", coach.CoachId, coach.TeamId, coach.ExperienceYears, coach.Specialty, coach.Certification, coach.Bio, coach.UpdatedAt });
         });
 
-        // DELETE /api/coaches/{id}
-        group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
+        // GET /api/coaches/me
+        group.MapGet("/me", async (NextUpDbContext db, ClaimsPrincipal user) =>
+        {
+            if (!user.Identity?.IsAuthenticated ?? true)
+            {
+                return Results.Unauthorized();
+            }
+
+            var userId = int.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+            var coach = await db.Coaches
+                .Include(c => c.User)
+                .Include(c => c.Team)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (coach == null)
+                return Results.NotFound(new { error = "Coach profile not found for current user." });
+
+            return Results.Ok(new
+            {
+                coach.CoachId,
+                Name = coach.User != null ? $"{coach.User.FirstName} {coach.User.LastName}" : null,
+                Email = coach.User?.Email,
+                coach.ExperienceYears,
+                coach.Specialty,
+                coach.Certification,
+                coach.Bio,
+                Team = coach.Team != null ? new { coach.Team.TeamId, coach.Team.Name, coach.Team.Location } : null
+            });
+        }).RequireAuthorization();
+
+        // GET /api/coaches/{id}
+        group.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var coach = await db.Coaches
                 .Include(c => c.Team)
