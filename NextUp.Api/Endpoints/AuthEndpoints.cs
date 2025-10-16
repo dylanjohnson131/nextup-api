@@ -152,5 +152,70 @@ public static class AuthEndpoints
                 Coach = new { coach.CoachId, coach.ExperienceYears, coach.Specialty }
             });
         });
+
+        // POST /auth/register/athletic-director
+        group.MapPost("/register/athletic-director", async (RegisterAthleticDirectorRequest request, NextUpDbContext db, IPasswordService passwordService, HttpContext httpContext) =>
+        {
+            // Basic validation
+            if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName) || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return Results.BadRequest(new { error = "FirstName, LastName, Email, and Password are required." });
+            }
+
+            // Enforce unique email
+            var existing = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (existing != null)
+            {
+                return Results.Conflict(new { error = "A user with this email already exists." });
+            }
+
+            // Create user
+            var user = new User
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                PasswordHash = passwordService.HashPassword(request.Password),
+                Role = "AthleticDirector",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            db.Users.Add(user);
+            await db.SaveChangesAsync();
+
+            // Create Athletic Director profile
+            var athleticDirector = new AthleticDirector
+            {
+                UserId = user.UserId,
+                Department = request.Department ?? string.Empty,
+                ExperienceYears = request.ExperienceYears ?? 0,
+                Certification = request.Certification ?? string.Empty,
+                Institution = request.Institution ?? string.Empty,
+                Bio = request.Bio ?? string.Empty,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            db.AthleticDirectors.Add(athleticDirector);
+            await db.SaveChangesAsync();
+
+            // Auto sign-in
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new(ClaimTypes.Email, user.Email),
+                new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                new(ClaimTypes.Role, user.Role)
+            };
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+            return Results.Created($"/api/athletic-directors/{athleticDirector.AthleticDirectorId}", new
+            {
+                Message = "Athletic Director registered and signed in.",
+                User = new { user.UserId, user.Email, user.FirstName, user.LastName, user.Role },
+                AthleticDirector = new { athleticDirector.AthleticDirectorId, athleticDirector.Department, athleticDirector.Institution }
+            });
+        });
     }
 }

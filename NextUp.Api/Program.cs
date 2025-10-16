@@ -150,6 +150,7 @@ app.MapTeamEndpoints();
 app.MapPlayerEndpoints();
 app.MapAuthEndpoints();
 app.MapCoachEndpoints();
+app.MapAthleticDirectorEndpoints();
 app.MapGameEndpoints();
 app.MapStatsEndpoints();
 app.MapPlayerNotesEndpoints();

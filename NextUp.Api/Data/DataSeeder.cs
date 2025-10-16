@@ -37,6 +37,18 @@ namespace NextUp.Data
                 UpdatedAt = DateTime.UtcNow
             };
 
+            // Create Athletic Director User (there should only be one)
+            var athleticDirectorUser = new User
+            {
+                FirstName = "Dr. Robert",
+                LastName = "Henderson",
+                Email = "robert.henderson@district.edu",
+                PasswordHash = passwordService.HashPassword("admin123"),
+                Role = "AthleticDirector",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
             // Create Player Users
             var playerUsers = new List<User>
             {
@@ -49,7 +61,7 @@ namespace NextUp.Data
             };
 
             // Add all users
-            context.Users.AddRange(new[] { coachUser1, coachUser2 });
+            context.Users.AddRange(new[] { coachUser1, coachUser2, athleticDirectorUser });
             context.Users.AddRange(playerUsers);
             await context.SaveChangesAsync();
 
@@ -175,6 +187,22 @@ namespace NextUp.Data
             };
 
             context.Coaches.AddRange(coach1, coach2, coach3, coach4);
+            await context.SaveChangesAsync();
+
+            // Create Athletic Director record (there should only be one)
+            var athleticDirector = new AthleticDirector
+            {
+                UserId = athleticDirectorUser.UserId,
+                Department = "Athletics",
+                ExperienceYears = 15,
+                Certification = "Master's in Sports Administration",
+                Institution = "State University District",
+                Bio = "Experienced Athletic Director overseeing all football programs in the district. Responsible for scheduling, team management, and ensuring competitive excellence across all teams.",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            context.AthleticDirectors.Add(athleticDirector);
             await context.SaveChangesAsync();
 
             // Create Players for Team 1 (Lightning Bolts)

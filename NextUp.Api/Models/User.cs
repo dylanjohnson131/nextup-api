@@ -35,6 +35,7 @@ namespace NextUp.Models
 
                 // Navigation properties
         public Coach Coach { get; set; }
+        public AthleticDirector AthleticDirector { get; set; }
         public ICollection<Team> Teams { get; set; }
         public ICollection<Player> Players { get; set; }
         public ICollection<PlayerGameStats> RecordedStats { get; set; }

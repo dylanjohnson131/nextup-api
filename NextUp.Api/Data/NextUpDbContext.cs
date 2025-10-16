@@ -14,6 +14,7 @@ namespace NextUp.Data
         public DbSet<Team> Teams { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<Coach> Coaches { get; set; }
+        public DbSet<AthleticDirector> AthleticDirectors { get; set; }
         public DbSet<PlayerGoal> PlayerGoals { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<PlayerGameStats> PlayerGameStats { get; set; }
@@ -76,6 +77,18 @@ namespace NextUp.Data
             modelBuilder.Entity<Coach>()
                 .HasIndex(c => c.TeamId)
                 .HasDatabaseName("idx_coach_team");
+
+            // Athletic Director configuration
+            modelBuilder.Entity<AthleticDirector>()
+                .HasOne(ad => ad.User)
+                .WithOne(u => u.AthleticDirector)
+                .HasForeignKey<AthleticDirector>(ad => ad.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AthleticDirector>()
+                .HasIndex(ad => ad.UserId)
+                .HasDatabaseName("idx_athleticdirector_user")
+                .IsUnique();
 
             // PlayerGoal configuration
             modelBuilder.Entity<PlayerGoal>()
