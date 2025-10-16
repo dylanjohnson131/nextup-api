@@ -147,7 +147,13 @@ public static class AthleticDirectorEndpoints
                 {
                     t.TeamId,
                     t.Name,
+                    t.School,
+                    t.Mascot,
                     t.Location,
+                    t.City,
+                    t.State,
+                    t.Division,
+                    t.Conference,
                     t.IsPublic,
                     t.CreatedAt
                 })
@@ -185,7 +191,13 @@ public static class AthleticDirectorEndpoints
             var team = new Team
             {
                 Name = request.Name,
+                School = request.School,
+                Mascot = request.Mascot,
                 Location = request.Location,
+                City = request.City,
+                State = request.State,
+                Division = request.Division,
+                Conference = request.Conference,
                 IsPublic = request.IsPublic,
                 CoachId = 0, // Temporary placeholder - will be updated when coach is assigned
                 CreatedAt = DateTime.UtcNow,
@@ -200,7 +212,13 @@ public static class AthleticDirectorEndpoints
                 message = "Team created successfully.",
                 TeamId = team.TeamId,
                 team.Name,
+                team.School,
+                team.Mascot,
                 team.Location,
+                team.City,
+                team.State,
+                team.Division,
+                team.Conference,
                 team.IsPublic
             });
         });
@@ -237,8 +255,20 @@ public static class AthleticDirectorEndpoints
                 team.Name = request.Name;
             }
 
+            if (!string.IsNullOrWhiteSpace(request.School))
+                team.School = request.School;
+            if (!string.IsNullOrWhiteSpace(request.Mascot))
+                team.Mascot = request.Mascot;
             if (!string.IsNullOrWhiteSpace(request.Location))
                 team.Location = request.Location;
+            if (!string.IsNullOrWhiteSpace(request.City))
+                team.City = request.City;
+            if (!string.IsNullOrWhiteSpace(request.State))
+                team.State = request.State;
+            if (!string.IsNullOrWhiteSpace(request.Division))
+                team.Division = request.Division;
+            if (!string.IsNullOrWhiteSpace(request.Conference))
+                team.Conference = request.Conference;
             if (request.IsPublic.HasValue)
                 team.IsPublic = request.IsPublic.Value;
             if (request.CoachId.HasValue)

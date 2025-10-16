@@ -25,13 +25,25 @@ public record UpdateAthleticDirectorRequest(
 // Team Management DTOs for Athletic Director
 public record CreateTeamByAdRequest(
     string Name,
+    string? School,
+    string? Mascot,
     string Location,
+    string? City,
+    string? State,
+    string? Division,
+    string? Conference,
     bool IsPublic = true
 );
 
 public record UpdateTeamByAdRequest(
     string? Name,
+    string? School,
+    string? Mascot,
     string? Location,
+    string? City,
+    string? State,
+    string? Division,
+    string? Conference,
     bool? IsPublic,
     int? CoachId
 );

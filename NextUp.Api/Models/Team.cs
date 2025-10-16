@@ -15,8 +15,26 @@ namespace NextUp.Models
         [MaxLength(100)]
         public string Name { get; set; }
 
+        [MaxLength(100)]
+        public string? School { get; set; }
+
+        [MaxLength(50)]
+        public string? Mascot { get; set; }
+
         [MaxLength(255)]
         public string Location { get; set; }
+
+        [MaxLength(100)]
+        public string? City { get; set; }
+
+        [MaxLength(50)]
+        public string? State { get; set; }
+
+        [MaxLength(100)]
+        public string? Division { get; set; }
+
+        [MaxLength(100)]
+        public string? Conference { get; set; }
 
         [Required]
         public int CoachId { get; set; }
