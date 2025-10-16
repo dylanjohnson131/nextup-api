@@ -4,7 +4,6 @@ using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
 using System.Security.Claims;
-using System.Security.Claims;
 
 namespace NextUp.Api.Endpoints;
 

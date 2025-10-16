@@ -81,6 +81,79 @@ public static class StatsEndpoints
             });
         });
 
+        // GET /api/stats/player/{playerId} - get all stats for a specific player
+        group.MapGet("/player/{playerId:int}", async (int playerId, NextUpDbContext db) =>
+        {
+            var playerStats = await db.PlayerGameStats
+                .Include(s => s.Player).ThenInclude(p => p.User)
+                .Include(s => s.Game)
+                .Where(s => s.PlayerId == playerId)
+                .ToListAsync();
+
+            if (!playerStats.Any())
+            {
+                // Return empty stats structure for players with no game stats
+                var player = await db.Players
+                    .Include(p => p.User)
+                    .FirstOrDefaultAsync(p => p.PlayerId == playerId);
+                
+                if (player == null)
+                    return Results.NotFound(new { error = $"Player with ID {playerId} not found." });
+
+                return Results.Ok(new
+                {
+                    PlayerId = playerId,
+                    PlayerName = $"{player.User.FirstName} {player.User.LastName}",
+                    GamesPlayed = 0,
+                    TotalPoints = 0,
+                    MinutesPlayed = 0,
+                    Games = new object[0]
+                });
+            }
+
+            var aggregatedStats = new
+            {
+                PlayerId = playerId,
+                PlayerName = playerStats.First().Player != null ? 
+                    $"{playerStats.First().Player.User?.FirstName} {playerStats.First().Player.User?.LastName}" : 
+                    "Unknown Player",
+                GamesPlayed = playerStats.Count,
+                TotalPoints = playerStats.Sum(s => 
+                    s.PassingTouchdowns * 6 + 
+                    s.RushingTouchdowns * 6 + 
+                    s.ReceivingTouchdowns * 6 +
+                    s.FieldGoalsMade * 3 +
+                    s.ExtraPointsMade * 1),
+                MinutesPlayed = playerStats.Sum(s => s.MinutesPlayed),
+                PassingYards = playerStats.Sum(s => s.PassingYards),
+                PassingTouchdowns = playerStats.Sum(s => s.PassingTouchdowns),
+                RushingYards = playerStats.Sum(s => s.RushingYards),
+                RushingTouchdowns = playerStats.Sum(s => s.RushingTouchdowns),
+                ReceivingYards = playerStats.Sum(s => s.ReceivingYards),
+                ReceivingTouchdowns = playerStats.Sum(s => s.ReceivingTouchdowns),
+                Tackles = playerStats.Sum(s => s.Tackles),
+                Assists = playerStats.Sum(s => s.Assists),
+                Sacks = playerStats.Sum(s => s.Sacks),
+                Games = playerStats.Select(s => new
+                {
+                    GameId = s.GameId,
+                    GameDate = s.Game.GameDate,
+                    Location = s.Game.Location,
+                    PassingYards = s.PassingYards,
+                    PassingTouchdowns = s.PassingTouchdowns,
+                    RushingYards = s.RushingYards,
+                    RushingTouchdowns = s.RushingTouchdowns,
+                    ReceivingYards = s.ReceivingYards,
+                    ReceivingTouchdowns = s.ReceivingTouchdowns,
+                    Tackles = s.Tackles,
+                    Assists = s.Assists,
+                    MinutesPlayed = s.MinutesPlayed
+                }).ToList()
+            };
+
+            return Results.Ok(aggregatedStats);
+        });
+
         // POST /api/stats
     group.MapPost("/", async (CreatePlayerStatsRequest request, NextUpDbContext db) =>
         {
