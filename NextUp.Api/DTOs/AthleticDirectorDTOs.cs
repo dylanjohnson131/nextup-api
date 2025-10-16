@@ -41,7 +41,8 @@ public record CreateGameByAdRequest(
     int HomeTeamId,
     int AwayTeamId,
     DateTime GameDate,
-    string Location
+    string Location,
+    string Season
 );
 
 public record UpdateGameByAdRequest(

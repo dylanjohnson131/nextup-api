@@ -375,6 +375,7 @@ public static class AthleticDirectorEndpoints
                 AwayTeamId = request.AwayTeamId,
                 GameDate = request.GameDate,
                 Location = request.Location,
+                Season = request.Season,
                 Status = "Scheduled",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
