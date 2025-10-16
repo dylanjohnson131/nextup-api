@@ -149,7 +149,32 @@ namespace NextUp.Data
                 UpdatedAt = DateTime.UtcNow
             };
 
-            context.Coaches.AddRange(coach1, coach2);
+            // Create Coach records for opposing teams
+            var coach3 = new Coach
+            {
+                UserId = opposingCoach1.UserId,
+                TeamId = team3.TeamId,
+                ExperienceYears = 6,
+                Specialty = "Speed & Agility",
+                Certification = "Level 2 Football Coach",
+                Bio = "Dynamic coach focusing on fast-paced offensive strategies.",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var coach4 = new Coach
+            {
+                UserId = opposingCoach2.UserId,
+                TeamId = team4.TeamId,
+                ExperienceYears = 10,
+                Specialty = "Team Coordination",
+                Certification = "Advanced Football Coach",
+                Bio = "Strategic coach with expertise in team building and coordination.",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            context.Coaches.AddRange(coach1, coach2, coach3, coach4);
             await context.SaveChangesAsync();
 
             // Create Players for Team 1 (Lightning Bolts)
