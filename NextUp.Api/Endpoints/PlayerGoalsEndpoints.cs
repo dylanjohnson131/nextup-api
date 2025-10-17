@@ -98,7 +98,7 @@ public static class PlayerGoalsEndpoints
 
             // If the user is a Player, ensure they only create goals for themselves
             var role = user.FindFirst(ClaimTypes.Role)?.Value;
-            if (role == "Player")
+            if (role == User.PLAYER_ROLE)
             {
                 var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
@@ -123,7 +123,7 @@ public static class PlayerGoalsEndpoints
 
             // If the user is a Player, ensure they only update their own goal
             var role = user.FindFirst(ClaimTypes.Role)?.Value;
-            if (role == "Player")
+            if (role == User.PLAYER_ROLE)
             {
                 var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
@@ -150,7 +150,7 @@ public static class PlayerGoalsEndpoints
 
             // If the user is a Player, ensure they only delete their own goal
             var role = user.FindFirst(ClaimTypes.Role)?.Value;
-            if (role == "Player")
+            if (role == User.PLAYER_ROLE)
             {
                 var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();

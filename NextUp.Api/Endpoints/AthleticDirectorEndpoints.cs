@@ -16,13 +16,13 @@ public static class AthleticDirectorEndpoints
         // GET /api/athletic-directors/me - Get current Athletic Director profile
         group.MapGet("/me", async (NextUpDbContext db, ClaimsPrincipal user) =>
         {
-            if (!user.Identity?.IsAuthenticated ?? true)
+            if (!user.Identity.IsAuthenticated)
             {
                 return Results.Unauthorized();
             }
 
             var userRole = user.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole != "AthleticDirector")
+            if (userRole != User.ATHLETIC_DIRECTOR_ROLE)
             {
                 return Results.Forbid();
             }
@@ -67,7 +67,7 @@ public static class AthleticDirectorEndpoints
             }
 
             var userRole = user.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole != "AthleticDirector")
+            if (userRole != User.ATHLETIC_DIRECTOR_ROLE)
             {
                 return Results.Forbid();
             }

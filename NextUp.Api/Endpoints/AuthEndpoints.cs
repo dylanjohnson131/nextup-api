@@ -45,7 +45,7 @@ public static class AuthEndpoints
                 LastName = request.LastName,
                 Email = request.Email,
                 PasswordHash = passwordService.HashPassword(request.Password),
-                Role = "Player",
+                Role = User.PLAYER_ROLE,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -111,7 +111,7 @@ public static class AuthEndpoints
                 LastName = request.LastName,
                 Email = request.Email,
                 PasswordHash = passwordService.HashPassword(request.Password),
-                Role = "Coach",
+                Role = User.COACH_ROLE,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -176,7 +176,7 @@ public static class AuthEndpoints
                 LastName = request.LastName,
                 Email = request.Email,
                 PasswordHash = passwordService.HashPassword(request.Password),
-                Role = "AthleticDirector",
+                Role = User.ATHLETIC_DIRECTOR_ROLE,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };

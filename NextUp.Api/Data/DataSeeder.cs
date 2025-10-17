@@ -21,7 +21,7 @@ namespace NextUp.Data
                 LastName = "Johnson",
                 Email = "coach.johnson@nextup.com",
                 PasswordHash = passwordService.HashPassword("password123"),
-                Role = "Coach",
+                Role = User.COACH_ROLE,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -32,7 +32,7 @@ namespace NextUp.Data
                 LastName = "Williams",
                 Email = "coach.williams@nextup.com",
                 PasswordHash = passwordService.HashPassword("password456"),
-                Role = "Coach",
+                Role = User.COACH_ROLE,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -44,7 +44,7 @@ namespace NextUp.Data
                 LastName = "Henderson",
                 Email = "robert.henderson@district.edu",
                 PasswordHash = passwordService.HashPassword("admin123"),
-                Role = "AthleticDirector",
+                Role = User.ATHLETIC_DIRECTOR_ROLE,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -52,12 +52,12 @@ namespace NextUp.Data
             // Create Player Users
             var playerUsers = new List<User>
             {
-                new User { FirstName = "Jake", LastName = "Thompson", Email = "jake.thompson@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Marcus", LastName = "Davis", Email = "marcus.davis@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Alex", LastName = "Rodriguez", Email = "alex.rodriguez@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Tyler", LastName = "Brown", Email = "tyler.brown@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Jordan", LastName = "Miller", Email = "jordan.miller@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Ryan", LastName = "Wilson", Email = "ryan.wilson@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+                new User { FirstName = "Jake", LastName = "Thompson", Email = "jake.thompson@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Marcus", LastName = "Davis", Email = "marcus.davis@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Alex", LastName = "Rodriguez", Email = "alex.rodriguez@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Tyler", LastName = "Brown", Email = "tyler.brown@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Jordan", LastName = "Miller", Email = "jordan.miller@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Ryan", LastName = "Wilson", Email = "ryan.wilson@student.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
             };
 
             // Add all users
@@ -93,7 +93,7 @@ namespace NextUp.Data
                 LastName = "Stevens",
                 Email = "coach.stevens@stormriders.com",
                 PasswordHash = passwordService.HashPassword("password789"),
-                Role = "Coach",
+                Role = User.COACH_ROLE,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -104,7 +104,7 @@ namespace NextUp.Data
                 LastName = "Martinez",
                 Email = "coach.martinez@eaglesfc.com",
                 PasswordHash = passwordService.HashPassword("password101"),
-                Role = "Coach",
+                Role = User.COACH_ROLE,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -228,16 +228,16 @@ namespace NextUp.Data
             var opposingPlayerUsers = new List<User>
             {
                 // Storm Riders players
-                new User { FirstName = "Max", LastName = "Thunder", Email = "max.thunder@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Lightning", LastName = "Storm", Email = "lightning.storm@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Bolt", LastName = "Rider", Email = "bolt.rider@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Flash", LastName = "Speed", Email = "flash.speed@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Max", LastName = "Thunder", Email = "max.thunder@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Lightning", LastName = "Storm", Email = "lightning.storm@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Bolt", LastName = "Rider", Email = "bolt.rider@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Flash", LastName = "Speed", Email = "flash.speed@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                 
                 // Eagles FC players
-                new User { FirstName = "Talon", LastName = "Eagle", Email = "talon.eagle@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Wing", LastName = "Soar", Email = "wing.soar@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Hawk", LastName = "Eyes", Email = "hawk.eyes@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                new User { FirstName = "Swift", LastName = "Flight", Email = "swift.flight@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+                new User { FirstName = "Talon", LastName = "Eagle", Email = "talon.eagle@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Wing", LastName = "Soar", Email = "wing.soar@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Hawk", LastName = "Eyes", Email = "hawk.eyes@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new User { FirstName = "Swift", LastName = "Flight", Email = "swift.flight@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = User.PLAYER_ROLE, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
             };
 
             context.Users.AddRange(opposingPlayerUsers);

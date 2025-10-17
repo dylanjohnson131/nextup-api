@@ -39,8 +39,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("CoachOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Coach"));
-    options.AddPolicy("PlayerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Player"));
+    options.AddPolicy("CoachOnly", policy => policy.RequireClaim(ClaimTypes.Role, User.COACH_ROLE));
+    options.AddPolicy("PlayerOnly", policy => policy.RequireClaim(ClaimTypes.Role, User.PLAYER_ROLE));
 });
 
 // Add password service
