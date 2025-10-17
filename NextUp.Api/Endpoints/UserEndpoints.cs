@@ -3,16 +3,12 @@ using NextUp.Api.DTOs;
 using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
-
 namespace NextUp.Api.Endpoints;
-
 public static class UserEndpoints
 {
     public static void MapUserEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/users");
-
-        // GET /api/users
         group.MapGet("/", async (NextUpDbContext db) =>
         {
             var users = await db.Users.ToListAsync();
@@ -27,8 +23,6 @@ public static class UserEndpoints
                 u.UpdatedAt
             }));
         });
-
-        // GET /api/users/{id}
         group.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var u = await db.Users
@@ -49,18 +43,14 @@ public static class UserEndpoints
                 u.UpdatedAt
             });
         });
-
-        // POST /api/users
         group.MapPost("/", async (CreateUserRequest request, NextUpDbContext db, IPasswordService passwordService) =>
         {
             if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName) || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password) || string.IsNullOrWhiteSpace(request.Role))
             {
                 return Results.BadRequest(new { error = "FirstName, LastName, Email, Password, and Role are required." });
             }
-
             var exists = await db.Users.AnyAsync(u => u.Email == request.Email);
             if (exists) return Results.Conflict(new { error = "A user with this email already exists." });
-
             var user = new User
             {
                 FirstName = request.FirstName,
@@ -75,13 +65,10 @@ public static class UserEndpoints
             await db.SaveChangesAsync();
             return Results.Created($"/api/users/{user.UserId}", new { user.UserId, user.FirstName, user.LastName, user.Email, user.Role });
         });
-
-        // PUT /api/users/{id}
         group.MapPut("/{id:int}", async (int id, UpdateUserRequest request, NextUpDbContext db, IPasswordService passwordService) =>
         {
             var u = await db.Users.FindAsync(id);
             if (u == null) return Results.NotFound(new { error = $"User with ID {id} not found." });
-
             if (request.Email != null && request.Email != u.Email)
             {
                 var emailTaken = await db.Users.AnyAsync(x => x.Email == request.Email && x.UserId != id);
@@ -99,8 +86,6 @@ public static class UserEndpoints
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "User updated", u.UserId, u.Email, u.Role, u.UpdatedAt });
         });
-
-        // DELETE /api/users/{id}
         group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var u = await db.Users
@@ -111,8 +96,6 @@ public static class UserEndpoints
                 .Include(x => x.PlayerNotes)
                 .FirstOrDefaultAsync(x => x.UserId == id);
             if (u == null) return Results.NotFound(new { error = $"User with ID {id} not found." });
-
-            // Prevent deletion if related dependent records exist that would orphan data
             if ((u.Players?.Any() ?? false) || u.Coach != null || (u.RecordedStats?.Any() ?? false) || (u.GameNotes?.Any() ?? false) || (u.PlayerNotes?.Any() ?? false))
             {
                 return Results.BadRequest(new
@@ -125,7 +108,6 @@ public static class UserEndpoints
                     playerNotes = u.PlayerNotes?.Count ?? 0
                 });
             }
-
             db.Users.Remove(u);
             await db.SaveChangesAsync();
             return Results.Ok(new { message = $"User {id} deleted." });

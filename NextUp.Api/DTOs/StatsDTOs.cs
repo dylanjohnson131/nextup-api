@@ -1,5 +1,4 @@
 namespace NextUp.Api.DTOs;
-
 public record CreatePlayerStatsRequest(
     int PlayerId,
     int GameId,
@@ -22,7 +21,6 @@ public record CreatePlayerStatsRequest(
     int ExtraPointsAttempted,
     int MinutesPlayed
 );
-
 public record UpdatePlayerStatsRequest(
     int? PassingYards,
     int? PassingTouchdowns,

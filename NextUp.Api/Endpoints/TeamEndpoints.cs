@@ -3,7 +3,6 @@ using NextUp.Api.DTOs;
 using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
-
 namespace NextUp.Api.Endpoints
 {
     public static class TeamEndpoints
@@ -11,8 +10,6 @@ namespace NextUp.Api.Endpoints
         public static void MapTeamEndpoints(this WebApplication app)
         {
             var teamGroup = app.MapGroup("/api/teams");
-
-            // GET /api/teams - Get all teams
             teamGroup.MapGet("/", async (NextUpDbContext db) =>
             {
                 var teams = await db.Teams
@@ -21,7 +18,6 @@ namespace NextUp.Api.Endpoints
                     .Include(team => team.Players)
                         .ThenInclude(player => player.User)
                     .ToListAsync();
-
                 return Results.Ok(teams.Select(t => new
                 {
                     t.TeamId,
@@ -47,8 +43,6 @@ namespace NextUp.Api.Endpoints
                     })) ?? Array.Empty<object>()
                 }));
             });
-
-            // GET /api/teams/{id} - Get team by ID
             teamGroup.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
             {
                 var team = await db.Teams
@@ -59,10 +53,8 @@ namespace NextUp.Api.Endpoints
                     .Include(t => t.HomeGames)
                     .Include(t => t.AwayGames)
                     .FirstOrDefaultAsync(t => t.TeamId == id);
-
                 if (team == null)
                     return Results.NotFound(new { error = $"Team with ID {id} not found." });
-
                 return Results.Ok(new
                 {
                     team.TeamId,
@@ -99,31 +91,22 @@ namespace NextUp.Api.Endpoints
                     }
                 });
             });
-
-            // GET /api/teams/debug - Debug endpoint to see all teams
             teamGroup.MapGet("/debug", async (NextUpDbContext db) =>
             {
                 var teams = await db.Teams.Select(t => new { t.TeamId, t.Name }).ToListAsync();
                 return Results.Ok(teams);
             });
-
-            // GET /api/teams/seed-missing - One-time endpoint to add missing opposing teams
             teamGroup.MapGet("/seed-missing", async (NextUpDbContext db, IPasswordService passwordService) =>
             {
-                // Check if Storm Riders already exists
                 var stormRiders = await db.Teams.FirstOrDefaultAsync(t => t.Name == "Storm Riders");
                 var eaglesFC = await db.Teams.FirstOrDefaultAsync(t => t.Name == "Eagles FC");
-
                 if (stormRiders != null && eaglesFC != null)
                 {
                     return Results.Ok(new { message = "Teams already exist" });
                 }
-
                 var addedTeams = new List<string>();
-
                 if (stormRiders == null)
                 {
-                    // Create coach for Storm Riders
                     var stormCoach = new User
                     {
                         FirstName = "Mark",
@@ -136,7 +119,6 @@ namespace NextUp.Api.Endpoints
                     };
                     db.Users.Add(stormCoach);
                     await db.SaveChangesAsync();
-
                     var stormTeam = new Team
                     {
                         Name = "Storm Riders",
@@ -148,8 +130,6 @@ namespace NextUp.Api.Endpoints
                     };
                     db.Teams.Add(stormTeam);
                     await db.SaveChangesAsync();
-
-                    // Add some players for Storm Riders
                     var stormPlayers = new List<User>
                     {
                         new User { FirstName = "Derek", LastName = "Wilson", Email = "derek.wilson@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
@@ -157,10 +137,8 @@ namespace NextUp.Api.Endpoints
                         new User { FirstName = "Mike", LastName = "Taylor", Email = "mike.taylor@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                         new User { FirstName = "Josh", LastName = "Martinez", Email = "josh.martinez@stormriders.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
                     };
-
                     db.Users.AddRange(stormPlayers);
                     await db.SaveChangesAsync();
-
                     var stormPlayerRecords = new List<Player>
                     {
                         new Player { UserId = stormPlayers[0].UserId, TeamId = stormTeam.TeamId, Position = "Quarterback", Age = 18, Height = "6'2\"", Weight = 200, JerseyNumber = 12, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
@@ -168,14 +146,11 @@ namespace NextUp.Api.Endpoints
                         new Player { UserId = stormPlayers[2].UserId, TeamId = stormTeam.TeamId, Position = "Running Back", Age = 16, Height = "5'9\"", Weight = 180, JerseyNumber = 23, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                         new Player { UserId = stormPlayers[3].UserId, TeamId = stormTeam.TeamId, Position = "Linebacker", Age = 18, Height = "6'1\"", Weight = 195, JerseyNumber = 55, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
                     };
-
                     db.Players.AddRange(stormPlayerRecords);
                     addedTeams.Add("Storm Riders");
                 }
-
                 if (eaglesFC == null)
                 {
-                    // Create coach for Eagles FC
                     var eaglesCoach = new User
                     {
                         FirstName = "Lisa",
@@ -188,7 +163,6 @@ namespace NextUp.Api.Endpoints
                     };
                     db.Users.Add(eaglesCoach);
                     await db.SaveChangesAsync();
-
                     var eaglesTeam = new Team
                     {
                         Name = "Eagles FC",
@@ -200,8 +174,6 @@ namespace NextUp.Api.Endpoints
                     };
                     db.Teams.Add(eaglesTeam);
                     await db.SaveChangesAsync();
-
-                    // Add some players for Eagles FC
                     var eaglesPlayers = new List<User>
                     {
                         new User { FirstName = "Kevin", LastName = "Garcia", Email = "kevin.garcia@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
@@ -209,10 +181,8 @@ namespace NextUp.Api.Endpoints
                         new User { FirstName = "Sam", LastName = "White", Email = "sam.white@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                         new User { FirstName = "Tony", LastName = "Clark", Email = "tony.clark@eaglesfc.com", PasswordHash = passwordService.HashPassword("player123"), Role = "Player", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
                     };
-
                     db.Users.AddRange(eaglesPlayers);
                     await db.SaveChangesAsync();
-
                     var eaglesPlayerRecords = new List<Player>
                     {
                         new Player { UserId = eaglesPlayers[0].UserId, TeamId = eaglesTeam.TeamId, Position = "Quarterback", Age = 17, Height = "5'11\"", Weight = 175, JerseyNumber = 8, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
@@ -220,23 +190,16 @@ namespace NextUp.Api.Endpoints
                         new Player { UserId = eaglesPlayers[2].UserId, TeamId = eaglesTeam.TeamId, Position = "Safety", Age = 17, Height = "5'11\"", Weight = 175, JerseyNumber = 26, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                         new Player { UserId = eaglesPlayers[3].UserId, TeamId = eaglesTeam.TeamId, Position = "Defensive End", Age = 18, Height = "6'4\"", Weight = 215, JerseyNumber = 99, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
                     };
-
                     db.Players.AddRange(eaglesPlayerRecords);
                     addedTeams.Add("Eagles FC");
                 }
-
                 await db.SaveChangesAsync();
-                
                 return Results.Ok(new { message = $"Successfully added teams: {string.Join(", ", addedTeams)}" });
             });
-
-            // GET /api/teams/{identifier}/overview - Get comprehensive team overview by name or ID
             teamGroup.MapGet("/{identifier}/overview", async (string identifier, NextUpDbContext db) =>
             {
                 Console.WriteLine($"DEBUG: Looking for team with identifier: '{identifier}'");
                 Team team = null;
-                
-                // Try to parse as integer ID first
                 if (int.TryParse(identifier, out int id))
                 {
                     Console.WriteLine($"DEBUG: Trying to find team by ID: {id}");
@@ -249,17 +212,12 @@ namespace NextUp.Api.Endpoints
                         .Include(t => t.AwayGames)
                         .FirstOrDefaultAsync(t => t.TeamId == id);
                 }
-                
-                // If not found by ID or identifier wasn't numeric, try by name slug
                 if (team == null)
                 {
                     var normalizedIdentifier = identifier.Replace("-", " ").ToLower();
                     Console.WriteLine($"DEBUG: Trying to find team by name with normalized identifier: '{normalizedIdentifier}'");
-                    
-                    // Get all team names for debugging
                     var allTeamNames = await db.Teams.Select(t => t.Name).ToListAsync();
                     Console.WriteLine($"DEBUG: Available teams: {string.Join(", ", allTeamNames)}");
-                    
                     team = await db.Teams
                         .Include(t => t.Coach)
                             .ThenInclude(u => u.Coach)
@@ -270,16 +228,12 @@ namespace NextUp.Api.Endpoints
                         .FirstOrDefaultAsync(t => t.Name.ToLower().Contains(normalizedIdentifier) || 
                                                  t.Name.ToLower().Replace(" ", "-") == identifier);
                 }
-
                 if (team == null)
                 {
                     Console.WriteLine($"DEBUG: Team '{identifier}' not found after all search attempts");
                     return Results.NotFound(new { error = $"Team '{identifier}' not found." });
                 }
-                
                 Console.WriteLine($"DEBUG: Found team: {team.Name} (ID: {team.TeamId})");
-
-                // Get player stats for performance analysis
                 var playersWithStats = await db.PlayerGameStats
                     .Include(pgs => pgs.Player)
                         .ThenInclude(p => p.User)
@@ -296,8 +250,6 @@ namespace NextUp.Api.Endpoints
                     .OrderByDescending(p => p.TotalTouchdowns)
                     .Take(5)
                     .ToListAsync();
-
-                // Get recent games for performance trend
                 var recentGames = await db.Games
                     .Where(g => g.HomeTeamId == team.TeamId || g.AwayTeamId == team.TeamId)
                     .OrderByDescending(g => g.GameDate)
@@ -305,20 +257,16 @@ namespace NextUp.Api.Endpoints
                     .Include(g => g.HomeTeam)
                     .Include(g => g.AwayTeam)
                     .ToListAsync();
-
-                // Calculate team record
                 int wins = 0, losses = 0, ties = 0;
                 foreach (var game in recentGames)
                 {
                     bool isHome = game.HomeTeamId == team.TeamId;
                     int teamScore = isHome ? game.HomeScore : game.AwayScore;
                     int opponentScore = isHome ? game.AwayScore : game.HomeScore;
-                    
                     if (teamScore > opponentScore) wins++;
                     else if (teamScore < opponentScore) losses++;
                     else ties++;
                 }
-
                 return Results.Ok(new
                 {
                     Team = new
@@ -363,26 +311,19 @@ namespace NextUp.Api.Endpoints
                     }).ToList()
                 });
             });
-
-            // POST /api/teams - Create new team
             teamGroup.MapPost("/", async (CreateTeamRequest request, NextUpDbContext db, IPasswordService passwordService) =>
             {
-                // Validate required fields
                 if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Location))
                 {
                     return Results.BadRequest(new { error = "Team name and location are required." });
                 }
-
-                // Check if coach user exists or create new one
                 var coachUser = await db.Users.FirstOrDefaultAsync(u => u.Email == request.CoachEmail);
-
                 if (coachUser == null)
                 {
                     if (string.IsNullOrWhiteSpace(request.CoachFirstName) || string.IsNullOrWhiteSpace(request.CoachLastName))
                     {
                         return Results.BadRequest(new { error = "Coach first name and last name are required for new coaches." });
                     }
-
                     coachUser = new User
                     {
                         FirstName = request.CoachFirstName,
@@ -396,8 +337,6 @@ namespace NextUp.Api.Endpoints
                     db.Users.Add(coachUser);
                     await db.SaveChangesAsync();
                 }
-
-                // Create the team
                 var team = new Team
                 {
                     Name = request.Name,
@@ -407,11 +346,8 @@ namespace NextUp.Api.Endpoints
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
-
                 db.Teams.Add(team);
                 await db.SaveChangesAsync();
-
-                // Create coach profile if doesn't exist
                 var existingCoach = await db.Coaches.FirstOrDefaultAsync(c => c.UserId == coachUser.UserId);
                 if (existingCoach == null)
                 {
@@ -429,7 +365,6 @@ namespace NextUp.Api.Endpoints
                     db.Coaches.Add(coach);
                     await db.SaveChangesAsync();
                 }
-
                 return Results.Created($"/api/teams/{team.TeamId}", new 
                 { 
                     team.TeamId, 
@@ -440,24 +375,18 @@ namespace NextUp.Api.Endpoints
                     CoachEmail = coachUser.Email
                 });
             }).RequireAuthorization("CoachOnly");
-
-            // PUT /api/teams/{id} - Update team
             teamGroup.MapPut("/{id:int}", async (int id, UpdateTeamRequest request, NextUpDbContext db) =>
             {
                 var team = await db.Teams.FindAsync(id);
                 if (team == null)
                     return Results.NotFound(new { error = $"Team with ID {id} not found." });
-
-                // Update only provided fields
                 if (!string.IsNullOrWhiteSpace(request.Name))
                     team.Name = request.Name;
                 if (!string.IsNullOrWhiteSpace(request.Location))
                     team.Location = request.Location;
                 if (request.IsPublic.HasValue)
                     team.IsPublic = request.IsPublic.Value;
-
                 team.UpdatedAt = DateTime.UtcNow;
-
                 await db.SaveChangesAsync();
                 return Results.Ok(new 
                 { 
@@ -468,8 +397,6 @@ namespace NextUp.Api.Endpoints
                     UpdatedAt = team.UpdatedAt
                 });
             }).RequireAuthorization("CoachOnly");
-
-            // DELETE /api/teams/{id} - Delete team
             teamGroup.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
             {
                 var team = await db.Teams
@@ -477,11 +404,8 @@ namespace NextUp.Api.Endpoints
                     .Include(t => t.HomeGames)
                     .Include(t => t.AwayGames)
                     .FirstOrDefaultAsync(t => t.TeamId == id);
-
                 if (team == null)
                     return Results.NotFound(new { error = $"Team with ID {id} not found." });
-
-                // Check if team has active games
                 if (team.HomeGames.Any() || team.AwayGames.Any())
                 {
                     return Results.BadRequest(new 
@@ -491,8 +415,6 @@ namespace NextUp.Api.Endpoints
                         awayGames = team.AwayGames.Count
                     });
                 }
-
-                // Check if team has players
                 if (team.Players.Any())
                 {
                     return Results.BadRequest(new 
@@ -501,61 +423,48 @@ namespace NextUp.Api.Endpoints
                         playerCount = team.Players.Count
                     });
                 }
-
                 db.Teams.Remove(team);
                 await db.SaveChangesAsync();
                 return Results.Ok(new { message = $"Team '{team.Name}' has been deleted successfully." });
             }).RequireAuthorization("CoachOnly");
         }
-
         private static List<string> GenerateTeamStrengths(Team team, IEnumerable<dynamic> playerStats)
         {
             var strengths = new List<string>();
-            
             if (team.Players.Count >= 10)
                 strengths.Add("Deep roster with good depth");
-            
             if (playerStats.Any())
             {
                 var topScorer = playerStats.FirstOrDefault();
                 if (topScorer?.TotalTouchdowns > 5)
                     strengths.Add("Strong offensive production");
-                
                 var avgAge = team.Players.Average(p => p.Age ?? 18);
                 if (avgAge < 17)
                     strengths.Add("Young, energetic team");
                 else if (avgAge > 19)
                     strengths.Add("Experienced, mature players");
             }
-            
             var positions = team.Players.GroupBy(p => p.Position).Select(g => g.Key).ToList();
             if (positions.Count >= 4)
                 strengths.Add("Well-balanced positional coverage");
-                
             return strengths.Any() ? strengths : new List<string> { "Solid fundamentals", "Good team chemistry" };
         }
-
         private static List<string> GenerateTeamWeaknesses(Team team, IEnumerable<dynamic> playerStats)
         {
             var weaknesses = new List<string>();
-            
             if (team.Players.Count < 8)
                 weaknesses.Add("Limited roster depth");
-            
             if (playerStats.Any())
             {
                 var totalGames = playerStats.FirstOrDefault()?.GamesPlayed ?? 0;
                 if (totalGames < 3)
                     weaknesses.Add("Limited game experience");
             }
-            
             var positions = team.Players.GroupBy(p => p.Position).ToList();
             if (positions.Any(g => g.Count() == 1))
                 weaknesses.Add("Thin coverage in key positions");
-            
             if (!playerStats.Any())
                 weaknesses.Add("Inconsistent statistical tracking");
-                
             return weaknesses.Any() ? weaknesses : new List<string> { "Areas for improvement in conditioning", "Could benefit from more strategic depth" };
         }
     }

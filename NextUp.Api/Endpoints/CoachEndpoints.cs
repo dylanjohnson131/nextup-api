@@ -4,32 +4,25 @@ using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
 using System.Security.Claims;
-
 namespace NextUp.Api.Endpoints;
-
 public static class CoachEndpoints
 {
     public static void MapCoachEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/coaches");
-
-        // GET /api/coaches/me
         group.MapGet("/me", async (NextUpDbContext db, ClaimsPrincipal user) =>
         {
             if (!user.Identity?.IsAuthenticated ?? true)
             {
                 return Results.Unauthorized();
             }
-
             var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var coach = await db.Coaches
                 .Include(c => c.User)
                 .Include(c => c.Team)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
-
             if (coach == null)
                 return Results.NotFound(new { error = "Coach profile not found." });
-
             return Results.Ok(new
             {
                 coach.CoachId,
@@ -42,15 +35,12 @@ public static class CoachEndpoints
                 Team = coach.Team != null ? new { coach.Team.TeamId, coach.Team.Name, coach.Team.Location } : null
             });
         }).RequireAuthorization();
-
-        // GET /api/coaches
         group.MapGet("/", async (NextUpDbContext db) =>
         {
             var coaches = await db.Coaches
                 .Include(c => c.User)
                 .Include(c => c.Team)
                 .ToListAsync();
-
             return Results.Ok(coaches.Select(c => new
             {
                 c.CoachId,
@@ -63,18 +53,14 @@ public static class CoachEndpoints
                 Team = c.Team != null ? new { c.Team.TeamId, c.Team.Name, c.Team.Location } : null
             }));
         });
-
-        // GET /api/coaches/{id}
         group.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var coach = await db.Coaches
                 .Include(c => c.User)
                 .Include(c => c.Team)
                 .FirstOrDefaultAsync(c => c.CoachId == id);
-
             if (coach == null)
                 return Results.NotFound(new { error = $"Coach with ID {id} not found." });
-
             return Results.Ok(new
             {
                 coach.CoachId,
@@ -87,11 +73,8 @@ public static class CoachEndpoints
                 Team = coach.Team != null ? new { coach.Team.TeamId, coach.Team.Name, coach.Team.Location } : null
             });
         });
-
-        // POST /api/coaches
         group.MapPost("/", async (CreateCoachRequest request, NextUpDbContext db, IPasswordService passwordService) =>
         {
-            // Determine or create the User
             User? user = null;
             if (request.UserId.HasValue)
             {
@@ -105,13 +88,11 @@ public static class CoachEndpoints
                 {
                     return Results.BadRequest(new { error = "FirstName, LastName, and Email are required to create a new user." });
                 }
-
                 var existing = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
                 if (existing != null)
                 {
                     return Results.Conflict(new { error = "A user with this email already exists." });
                 }
-
                 user = new User
                 {
                     FirstName = request.FirstName!,
@@ -125,8 +106,6 @@ public static class CoachEndpoints
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
             }
-
-            // Optionally validate team
             Team? team = null;
             if (request.TeamId.HasValue)
             {
@@ -134,7 +113,6 @@ public static class CoachEndpoints
                 if (team == null)
                     return Results.BadRequest(new { error = $"Team with ID {request.TeamId.Value} not found." });
             }
-
             var coach = new Coach
             {
                 UserId = user!.UserId,
@@ -148,7 +126,6 @@ public static class CoachEndpoints
             };
             db.Coaches.Add(coach);
             await db.SaveChangesAsync();
-
             return Results.Created($"/api/coaches/{coach.CoachId}", new
             {
                 coach.CoachId,
@@ -161,14 +138,11 @@ public static class CoachEndpoints
                 Team = team != null ? new { team.TeamId, team.Name, team.Location } : null
             });
         });
-
-        // PUT /api/coaches/{id}
         group.MapPut("/{id:int}", async (int id, UpdateCoachRequest request, NextUpDbContext db) =>
         {
             var coach = await db.Coaches.FindAsync(id);
             if (coach == null)
                 return Results.NotFound(new { error = $"Coach with ID {id} not found." });
-
             if (request.TeamId.HasValue)
             {
                 var team = await db.Teams.FindAsync(request.TeamId.Value);
@@ -180,13 +154,10 @@ public static class CoachEndpoints
             if (request.Specialty != null) coach.Specialty = request.Specialty;
             if (request.Certification != null) coach.Certification = request.Certification;
             if (request.Bio != null) coach.Bio = request.Bio;
-
             coach.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Coach updated", coach.CoachId, coach.TeamId, coach.ExperienceYears, coach.Specialty, coach.Certification, coach.Bio, coach.UpdatedAt });
         });
-
-        // DELETE /api/coaches/{id}
         group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var coach = await db.Coaches
@@ -194,13 +165,10 @@ public static class CoachEndpoints
                 .FirstOrDefaultAsync(c => c.CoachId == id);
             if (coach == null)
                 return Results.NotFound(new { error = $"Coach with ID {id} not found." });
-
-            // If the coach is assigned to a team, block deletion to avoid orphaning the team
             if (coach.TeamId.HasValue)
             {
                 return Results.BadRequest(new { error = "Cannot delete a coach assigned to a team. Reassign the team or remove coach from team first.", teamId = coach.TeamId });
             }
-
             db.Coaches.Remove(coach);
             await db.SaveChangesAsync();
             return Results.Ok(new { message = $"Coach {id} deleted." });

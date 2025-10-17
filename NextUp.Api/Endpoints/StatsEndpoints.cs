@@ -2,23 +2,18 @@ using Microsoft.EntityFrameworkCore;
 using NextUp.Api.DTOs;
 using NextUp.Data;
 using NextUp.Models;
-
 namespace NextUp.Api.Endpoints;
-
 public static class StatsEndpoints
 {
     public static void MapStatsEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/stats");
-
-        // GET /api/stats
         group.MapGet("/", async (NextUpDbContext db) =>
         {
             var stats = await db.PlayerGameStats
                 .Include(s => s.Player).ThenInclude(p => p.User)
                 .Include(s => s.Game)
                 .ToListAsync();
-
             return Results.Ok(stats.Select(s => new
             {
                 s.PlayerGameStatsId,
@@ -44,8 +39,6 @@ public static class StatsEndpoints
                 s.MinutesPlayed
             }));
         });
-
-        // GET /api/stats/{id}
         group.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var s = await db.PlayerGameStats
@@ -54,7 +47,6 @@ public static class StatsEndpoints
                 .FirstOrDefaultAsync(x => x.PlayerGameStatsId == id);
             if (s == null)
                 return Results.NotFound(new { error = $"Stats entry with ID {id} not found." });
-
             return Results.Ok(new
             {
                 s.PlayerGameStatsId,
@@ -80,8 +72,6 @@ public static class StatsEndpoints
                 s.MinutesPlayed
             });
         });
-
-        // GET /api/stats/player/{playerId} - get all stats for a specific player
         group.MapGet("/player/{playerId:int}", async (int playerId, NextUpDbContext db) =>
         {
             var playerStats = await db.PlayerGameStats
@@ -89,17 +79,13 @@ public static class StatsEndpoints
                 .Include(s => s.Game)
                 .Where(s => s.PlayerId == playerId)
                 .ToListAsync();
-
             if (!playerStats.Any())
             {
-                // Return empty stats structure for players with no game stats
                 var player = await db.Players
                     .Include(p => p.User)
                     .FirstOrDefaultAsync(p => p.PlayerId == playerId);
-                
                 if (player == null)
                     return Results.NotFound(new { error = $"Player with ID {playerId} not found." });
-
                 return Results.Ok(new
                 {
                     PlayerId = playerId,
@@ -110,7 +96,6 @@ public static class StatsEndpoints
                     Games = new object[0]
                 });
             }
-
             var aggregatedStats = new
             {
                 PlayerId = playerId,
@@ -150,18 +135,14 @@ public static class StatsEndpoints
                     MinutesPlayed = s.MinutesPlayed
                 }).ToList()
             };
-
             return Results.Ok(aggregatedStats);
         });
-
-        // POST /api/stats
     group.MapPost("/", async (CreatePlayerStatsRequest request, NextUpDbContext db) =>
         {
             var player = await db.Players.FindAsync(request.PlayerId);
             var game = await db.Games.FindAsync(request.GameId);
             if (player == null || game == null)
                 return Results.BadRequest(new { error = "Player or Game not found." });
-
             var stats = new PlayerGameStats
             {
                 PlayerId = request.PlayerId,
@@ -189,17 +170,13 @@ public static class StatsEndpoints
             };
             db.PlayerGameStats.Add(stats);
             await db.SaveChangesAsync();
-
             return Results.Created($"/api/stats/{stats.PlayerGameStatsId}", new { stats.PlayerGameStatsId, stats.PlayerId, stats.GameId });
         }).RequireAuthorization("CoachOnly");
-
-        // PUT /api/stats/{id}
     group.MapPut("/{id:int}", async (int id, UpdatePlayerStatsRequest request, NextUpDbContext db) =>
         {
             var s = await db.PlayerGameStats.FindAsync(id);
             if (s == null)
                 return Results.NotFound(new { error = $"Stats entry with ID {id} not found." });
-
             s.PassingYards = request.PassingYards ?? s.PassingYards;
             s.PassingTouchdowns = request.PassingTouchdowns ?? s.PassingTouchdowns;
             s.Interceptions = request.Interceptions ?? s.Interceptions;
@@ -219,12 +196,9 @@ public static class StatsEndpoints
             s.ExtraPointsAttempted = request.ExtraPointsAttempted ?? s.ExtraPointsAttempted;
             s.MinutesPlayed = request.MinutesPlayed ?? s.MinutesPlayed;
             s.UpdatedAt = DateTime.UtcNow;
-
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Stats updated", s.PlayerGameStatsId });
         }).RequireAuthorization("CoachOnly");
-
-        // DELETE /api/stats/{id}
     group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var s = await db.PlayerGameStats.FindAsync(id);

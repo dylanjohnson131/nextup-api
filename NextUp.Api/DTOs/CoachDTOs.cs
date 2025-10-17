@@ -1,5 +1,4 @@
 namespace NextUp.Api.DTOs;
-
 public record CreateCoachRequest(
     string? FirstName,
     string? LastName,
@@ -12,7 +11,6 @@ public record CreateCoachRequest(
     string? Certification,
     string? Bio
 );
-
 public record UpdateCoachRequest(
     int? TeamId,
     int? ExperienceYears,

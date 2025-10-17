@@ -4,33 +4,25 @@ using NextUp.Api.Services;
 using NextUp.Data;
 using NextUp.Models;
 using System.Security.Claims;
-
 namespace NextUp.Api.Endpoints;
-
 public static class PlayerEndpoints
 {
     public static void MapPlayerEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/players");
-
-        // GET /api/players/me - get current player's data
         group.MapGet("/me", async (NextUpDbContext db, ClaimsPrincipal user) =>
         {
             if (!user.Identity?.IsAuthenticated ?? true)
             {
                 return Results.Unauthorized();
             }
-
             var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-            
             var player = await db.Players
                 .Include(p => p.User)
                 .Include(p => p.Team)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
-
             if (player == null)
                 return Results.NotFound(new { error = "Player profile not found for current user." });
-
             return Results.Ok(new
             {
                 player.PlayerId,
@@ -44,15 +36,12 @@ public static class PlayerEndpoints
                 Team = new { player.Team.TeamId, player.Team.Name, player.Team.Location }
             });
         });
-
-        // GET /api/players - list players
         group.MapGet("/", async (NextUpDbContext db) =>
         {
             var players = await db.Players
                 .Include(p => p.User)
                 .Include(p => p.Team)
                 .ToListAsync();
-
             return Results.Ok(players.Select(p => new
             {
                 p.PlayerId,
@@ -66,18 +55,14 @@ public static class PlayerEndpoints
                 Team = new { p.Team.TeamId, p.Team.Name, p.Team.Location }
             }));
         });
-
-        // GET /api/players/{id}
         group.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var player = await db.Players
                 .Include(p => p.User)
                 .Include(p => p.Team)
                 .FirstOrDefaultAsync(p => p.PlayerId == id);
-
             if (player == null)
                 return Results.NotFound(new { error = $"Player with ID {id} not found." });
-
             return Results.Ok(new
             {
                 player.PlayerId,
@@ -91,22 +76,16 @@ public static class PlayerEndpoints
                 Team = new { player.Team.TeamId, player.Team.Name, player.Team.Location }
             });
         });
-
-        // POST /api/players
         group.MapPost("/", async (CreatePlayerRequest request, NextUpDbContext db, IPasswordService passwordService) =>
         {
-            // Validate team exists
             var team = await db.Teams.FindAsync(request.TeamId);
             if (team == null)
                 return Results.BadRequest(new { error = $"Team with ID {request.TeamId} does not exist." });
-
-            // Find or create user
             var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (existingUser == null)
             {
                 if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
                     return Results.BadRequest(new { error = "First name and last name are required for new user." });
-
                 existingUser = new User
                 {
                     FirstName = request.FirstName,
@@ -120,8 +99,6 @@ public static class PlayerEndpoints
                 db.Users.Add(existingUser);
                 await db.SaveChangesAsync();
             }
-
-            // Create player
             var player = new Player
             {
                 UserId = existingUser.UserId,
@@ -136,7 +113,6 @@ public static class PlayerEndpoints
             };
             db.Players.Add(player);
             await db.SaveChangesAsync();
-
             return Results.Created($"/api/players/{player.PlayerId}", new
             {
                 player.PlayerId,
@@ -150,14 +126,11 @@ public static class PlayerEndpoints
                 Team = new { team.TeamId, team.Name, team.Location }
             });
         });
-
-        // PUT /api/players/{id}
         group.MapPut("/{id:int}", async (int id, UpdatePlayerRequest request, NextUpDbContext db) =>
         {
             var player = await db.Players.FindAsync(id);
             if (player == null)
                 return Results.NotFound(new { error = $"Player with ID {id} not found." });
-
             if (!string.IsNullOrWhiteSpace(request.Position))
                 player.Position = request.Position;
             if (request.Age.HasValue)
@@ -168,14 +141,10 @@ public static class PlayerEndpoints
                 player.Weight = request.Weight;
             if (request.JerseyNumber.HasValue)
                 player.JerseyNumber = request.JerseyNumber;
-
             player.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
-
             return Results.Ok(new { message = "Player updated", player.PlayerId, player.Position, player.Age, player.Height, player.Weight, player.JerseyNumber, player.UpdatedAt });
         });
-
-        // DELETE /api/players/{id}
         group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var player = await db.Players
@@ -183,10 +152,8 @@ public static class PlayerEndpoints
                 .Include(p => p.Goals)
                 .Include(p => p.GameStats)
                 .FirstOrDefaultAsync(p => p.PlayerId == id);
-
             if (player == null)
                 return Results.NotFound(new { error = $"Player with ID {id} not found." });
-
             if ((player.Notes?.Any() ?? false) || (player.Goals?.Any() ?? false) || (player.GameStats?.Any() ?? false))
             {
                 return Results.BadRequest(new
@@ -197,7 +164,6 @@ public static class PlayerEndpoints
                     gameStats = player.GameStats?.Count ?? 0
                 });
             }
-
             db.Players.Remove(player);
             await db.SaveChangesAsync();
             return Results.Ok(new { message = $"Player {id} deleted." });

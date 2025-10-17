@@ -1,16 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-
+using Microsoft.EntityFrameworkCore.Migrations;
 #nullable disable
-
 namespace NextUp.Api.Migrations
 {
-    /// <inheritdoc />
     public partial class FixMissingCoachRecords : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Create Coach records for Lisa Martinez and Mark Stevens
             migrationBuilder.Sql(@"
                 INSERT INTO ""Coach"" (""UserId"", ""TeamId"", ""ExperienceYears"", ""Specialty"", ""Certification"", ""Bio"", ""CreatedAt"", ""UpdatedAt"")
                 SELECT 
@@ -43,11 +38,8 @@ namespace NextUp.Api.Migrations
                 );
             ");
         }
-
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            // Remove the Coach records we created for Lisa Martinez and Mark Stevens
             migrationBuilder.Sql(@"
                 DELETE FROM ""Coach"" 
                 WHERE ""UserId"" IN (

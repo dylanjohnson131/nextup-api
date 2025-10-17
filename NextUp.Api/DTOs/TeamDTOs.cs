@@ -1,5 +1,4 @@
 namespace NextUp.Api.DTOs;
-
 public record CreateTeamRequest(
     string Name,
     string Location,
@@ -13,7 +12,6 @@ public record CreateTeamRequest(
     string? CoachCertification,
     string? CoachBio
 );
-
 public record UpdateTeamRequest(
     string? Name,
     string? Location,

@@ -1,6 +1,4 @@
 namespace NextUp.Api.DTOs;
-
-// Registration DTO for Athletic Director
 public record RegisterAthleticDirectorRequest(
     string FirstName,
     string LastName,
@@ -12,8 +10,6 @@ public record RegisterAthleticDirectorRequest(
     string? Institution,
     string? Bio
 );
-
-// Update Athletic Director Profile
 public record UpdateAthleticDirectorRequest(
     string? Department,
     int? ExperienceYears,
@@ -21,8 +17,6 @@ public record UpdateAthleticDirectorRequest(
     string? Institution,
     string? Bio
 );
-
-// Team Management DTOs for Athletic Director
 public record CreateTeamByAdRequest(
     string Name,
     string? School,
@@ -35,7 +29,6 @@ public record CreateTeamByAdRequest(
     int? CoachId,
     bool IsPublic = true
 );
-
 public record UpdateTeamByAdRequest(
     string? Name,
     string? School,
@@ -48,8 +41,6 @@ public record UpdateTeamByAdRequest(
     bool? IsPublic,
     int? CoachId
 );
-
-// Game Management DTOs for Athletic Director
 public record CreateGameByAdRequest(
     int HomeTeamId,
     int AwayTeamId,
@@ -57,7 +48,6 @@ public record CreateGameByAdRequest(
     string Location,
     string Season
 );
-
 public record UpdateGameByAdRequest(
     int? HomeTeamId,
     int? AwayTeamId,
@@ -65,8 +55,6 @@ public record UpdateGameByAdRequest(
     string? Location,
     string? Status
 );
-
-// Overview DTOs for Athletic Director Dashboard
 public record SeasonOverviewResponse(
     int TotalTeams,
     int TotalGames,
@@ -75,7 +63,6 @@ public record SeasonOverviewResponse(
     IEnumerable<TeamSummary> Teams,
     IEnumerable<GameSummary> RecentGames
 );
-
 public record TeamSummary(
     int TeamId,
     string Name,
@@ -86,7 +73,6 @@ public record TeamSummary(
     int Wins,
     int Losses
 );
-
 public record GameSummary(
     int GameId,
     string HomeTeam,

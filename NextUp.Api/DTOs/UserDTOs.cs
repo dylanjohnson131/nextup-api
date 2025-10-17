@@ -1,5 +1,4 @@
 namespace NextUp.Api.DTOs;
-
 public record CreateUserRequest(
     string FirstName,
     string LastName,
@@ -7,7 +6,6 @@ public record CreateUserRequest(
     string Password,
     string Role
 );
-
 public record UpdateUserRequest(
     string? FirstName,
     string? LastName,

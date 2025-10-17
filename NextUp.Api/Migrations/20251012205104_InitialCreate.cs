@@ -1,15 +1,11 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-
 #nullable disable
-
 namespace NextUp.Api.Migrations
 {
-    /// <inheritdoc />
     public partial class InitialCreate : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -30,7 +26,6 @@ namespace NextUp.Api.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
                 });
-
             migrationBuilder.CreateTable(
                 name: "Team",
                 columns: table => new
@@ -54,7 +49,6 @@ namespace NextUp.Api.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
             migrationBuilder.CreateTable(
                 name: "Coach",
                 columns: table => new
@@ -85,7 +79,6 @@ namespace NextUp.Api.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
             migrationBuilder.CreateTable(
                 name: "Game",
                 columns: table => new
@@ -119,7 +112,6 @@ namespace NextUp.Api.Migrations
                         principalColumn: "TeamId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
             migrationBuilder.CreateTable(
                 name: "Player",
                 columns: table => new
@@ -152,7 +144,6 @@ namespace NextUp.Api.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
             migrationBuilder.CreateTable(
                 name: "GameNote",
                 columns: table => new
@@ -183,7 +174,6 @@ namespace NextUp.Api.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
             migrationBuilder.CreateTable(
                 name: "PlayerGameStats",
                 columns: table => new
@@ -236,7 +226,6 @@ namespace NextUp.Api.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.SetNull);
                 });
-
             migrationBuilder.CreateTable(
                 name: "PlayerGoal",
                 columns: table => new
@@ -261,7 +250,6 @@ namespace NextUp.Api.Migrations
                         principalColumn: "PlayerId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
             migrationBuilder.CreateTable(
                 name: "PlayerNote",
                 columns: table => new
@@ -291,128 +279,100 @@ namespace NextUp.Api.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
             migrationBuilder.CreateIndex(
                 name: "idx_coach_team",
                 table: "Coach",
                 column: "TeamId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_coach_user",
                 table: "Coach",
                 column: "UserId",
                 unique: true);
-
             migrationBuilder.CreateIndex(
                 name: "idx_away_team",
                 table: "Game",
                 column: "AwayTeamId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_game_date",
                 table: "Game",
                 column: "GameDate");
-
             migrationBuilder.CreateIndex(
                 name: "idx_home_team",
                 table: "Game",
                 column: "HomeTeamId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_gamenote_coach",
                 table: "GameNote",
                 column: "CoachId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_gamenote_game",
                 table: "GameNote",
                 column: "GameId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_player_team",
                 table: "Player",
                 column: "TeamId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_player_user",
                 table: "Player",
                 column: "UserId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_player_game_unique",
                 table: "PlayerGameStats",
                 columns: new[] { "PlayerId", "GameId" },
                 unique: true);
-
             migrationBuilder.CreateIndex(
                 name: "idx_stats_game",
                 table: "PlayerGameStats",
                 column: "GameId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_stats_player",
                 table: "PlayerGameStats",
                 column: "PlayerId");
-
             migrationBuilder.CreateIndex(
                 name: "IX_PlayerGameStats_RecordedBy",
                 table: "PlayerGameStats",
                 column: "RecordedBy");
-
             migrationBuilder.CreateIndex(
                 name: "idx_goal_player",
                 table: "PlayerGoal",
                 column: "PlayerId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_playernote_coach",
                 table: "PlayerNote",
                 column: "CoachId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_playernote_player",
                 table: "PlayerNote",
                 column: "PlayerId");
-
             migrationBuilder.CreateIndex(
                 name: "idx_team_coach",
                 table: "Team",
                 column: "CoachId");
-
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
                 unique: true);
         }
-
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "Coach");
-
             migrationBuilder.DropTable(
                 name: "GameNote");
-
             migrationBuilder.DropTable(
                 name: "PlayerGameStats");
-
             migrationBuilder.DropTable(
                 name: "PlayerGoal");
-
             migrationBuilder.DropTable(
                 name: "PlayerNote");
-
             migrationBuilder.DropTable(
                 name: "Game");
-
             migrationBuilder.DropTable(
                 name: "Player");
-
             migrationBuilder.DropTable(
                 name: "Team");
-
             migrationBuilder.DropTable(
                 name: "Users");
         }

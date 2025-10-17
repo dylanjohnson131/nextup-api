@@ -1,5 +1,4 @@
 namespace NextUp.Api.DTOs;
-
 public record CreateGameRequest(
     int HomeTeamId,
     int AwayTeamId,
@@ -7,7 +6,6 @@ public record CreateGameRequest(
     string Location,
     string Season
 );
-
 public record UpdateGameRequest(
     DateTime? GameDate,
     string? Location,

@@ -1,5 +1,4 @@
 namespace NextUp.Api.DTOs;
-
 public record CreatePlayerRequest(
     string FirstName,
     string LastName,
@@ -12,7 +11,6 @@ public record CreatePlayerRequest(
     int? Weight,
     int? JerseyNumber
 );
-
 public record UpdatePlayerRequest(
     string? FirstName,
     string? LastName,

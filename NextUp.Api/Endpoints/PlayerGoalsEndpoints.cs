@@ -2,15 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using NextUp.Data;
 using NextUp.Models;
 using System.Security.Claims;
-
 namespace NextUp.Api.Endpoints;
-
 public static class PlayerGoalsEndpoints
 {
     public static void MapPlayerGoalsEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/player-goals");
-
         group.MapGet("/", async (NextUpDbContext db) =>
         {
             var goals = await db.PlayerGoals
@@ -27,7 +24,6 @@ public static class PlayerGoalsEndpoints
                 g.CreatedAt
             }));
         });
-
         group.MapGet("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var g = await db.PlayerGoals
@@ -46,7 +42,6 @@ public static class PlayerGoalsEndpoints
                 g.UpdatedAt
             });
         });
-
         group.MapGet("/by-player/{playerId:int}", async (int playerId, NextUpDbContext db) =>
         {
             var goals = await db.PlayerGoals
@@ -65,19 +60,15 @@ public static class PlayerGoalsEndpoints
                 g.UpdatedAt
             }));
         });
-
         group.MapGet("/my-goals", async (NextUpDbContext db, ClaimsPrincipal user) =>
         {
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
-            
             var player = await db.Players.FirstOrDefaultAsync(p => p.UserId.ToString() == userId);
             if (player == null) return Results.NotFound(new { error = "Player not found." });
-
             var goals = await db.PlayerGoals
                 .Where(g => g.PlayerId == player.PlayerId)
                 .ToListAsync();
-            
             return Results.Ok(goals.Select(g => new
             {
                 g.PlayerGoalId,
@@ -90,13 +81,10 @@ public static class PlayerGoalsEndpoints
                 g.UpdatedAt
             }));
         }).RequireAuthorization();
-
         group.MapPost("/", async (PlayerGoal request, NextUpDbContext db, ClaimsPrincipal user) =>
         {
             var player = await db.Players.FindAsync(request.PlayerId);
             if (player == null) return Results.BadRequest(new { error = "Player not found." });
-
-            // If the user is a Player, ensure they only create goals for themselves
             var role = user.FindFirst(ClaimTypes.Role)?.Value;
             if (role == User.PLAYER_ROLE)
             {
@@ -107,7 +95,6 @@ public static class PlayerGoalsEndpoints
                     return Results.Forbid();
                 }
             }
-
             request.PlayerGoalId = 0;
             request.CreatedAt = DateTime.UtcNow;
             request.UpdatedAt = DateTime.UtcNow;
@@ -115,13 +102,10 @@ public static class PlayerGoalsEndpoints
             await db.SaveChangesAsync();
             return Results.Created($"/api/player-goals/{request.PlayerGoalId}", new { request.PlayerGoalId });
         }).RequireAuthorization();
-
         group.MapPut("/{id:int}", async (int id, PlayerGoal update, NextUpDbContext db, ClaimsPrincipal user) =>
         {
             var g = await db.PlayerGoals.FindAsync(id);
             if (g == null) return Results.NotFound(new { error = $"Player goal with ID {id} not found." });
-
-            // If the user is a Player, ensure they only update their own goal
             var role = user.FindFirst(ClaimTypes.Role)?.Value;
             if (role == User.PLAYER_ROLE)
             {
@@ -133,22 +117,18 @@ public static class PlayerGoalsEndpoints
                     return Results.Forbid();
                 }
             }
-
             if (update.GoalType != null) g.GoalType = update.GoalType;
-            if (update.TargetValue != 0) g.TargetValue = update.TargetValue; // simple update; 0 means leave as-is if they didn't intend
-            g.CurrentValue = update.CurrentValue; // can be 0
+            if (update.TargetValue != 0) g.TargetValue = update.TargetValue;
+            g.CurrentValue = update.CurrentValue;
             if (update.Season != null) g.Season = update.Season;
             g.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Player goal updated", g.PlayerGoalId });
         }).RequireAuthorization();
-
         group.MapDelete("/{id:int}", async (int id, NextUpDbContext db, ClaimsPrincipal user) =>
         {
             var g = await db.PlayerGoals.FindAsync(id);
             if (g == null) return Results.NotFound(new { error = $"Player goal with ID {id} not found." });
-
-            // If the user is a Player, ensure they only delete their own goal
             var role = user.FindFirst(ClaimTypes.Role)?.Value;
             if (role == User.PLAYER_ROLE)
             {
@@ -160,7 +140,6 @@ public static class PlayerGoalsEndpoints
                     return Results.Forbid();
                 }
             }
-
             db.PlayerGoals.Remove(g);
             await db.SaveChangesAsync();
             return Results.Ok(new { message = $"Player goal {id} deleted." });

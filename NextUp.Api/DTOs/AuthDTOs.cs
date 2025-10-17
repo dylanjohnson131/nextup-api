@@ -1,7 +1,5 @@
 namespace NextUp.Api.DTOs;
-
 public record LoginRequest(string Email, string Password);
-
 public record RegisterPlayerRequest(
 	string FirstName,
 	string LastName,
@@ -14,7 +12,6 @@ public record RegisterPlayerRequest(
 	int? Weight,
 	int? JerseyNumber
 );
-
 public record RegisterCoachRequest(
 	string FirstName,
 	string LastName,
