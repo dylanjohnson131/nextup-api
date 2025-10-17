@@ -188,9 +188,9 @@ public static class AthleticDirectorEndpoints
                 return Results.BadRequest(new { error = "Team name is required." });
             }
 
-            // Validate coach exists
-            var coachExists = await db.Coaches.AnyAsync(c => c.CoachId == request.CoachId);
-            if (!coachExists)
+            // Validate coach exists and get the User ID
+            var coach = await db.Coaches.FirstOrDefaultAsync(c => c.CoachId == request.CoachId);
+            if (coach == null)
             {
                 return Results.BadRequest(new { error = "Selected coach not found." });
             }
@@ -213,7 +213,7 @@ public static class AthleticDirectorEndpoints
                 Division = request.Division,
                 Conference = request.Conference,
                 IsPublic = request.IsPublic,
-                CoachId = request.CoachId,
+                CoachId = coach.UserId, // Use the coach's UserId, not the CoachId
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -287,13 +287,13 @@ public static class AthleticDirectorEndpoints
                 team.IsPublic = request.IsPublic.Value;
             if (request.CoachId.HasValue)
             {
-                // Validate coach exists and is available
+                // Validate coach exists and get the User ID
                 var coach = await db.Coaches.FirstOrDefaultAsync(c => c.CoachId == request.CoachId.Value);
                 if (coach == null)
                 {
                     return Results.BadRequest(new { error = "Coach not found." });
                 }
-                team.CoachId = request.CoachId.Value;
+                team.CoachId = coach.UserId; // Use the coach's UserId, not the CoachId
             }
 
             team.UpdatedAt = DateTime.UtcNow;
