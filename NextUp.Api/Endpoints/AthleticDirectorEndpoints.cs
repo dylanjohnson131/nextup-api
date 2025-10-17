@@ -188,11 +188,15 @@ public static class AthleticDirectorEndpoints
                 return Results.BadRequest(new { error = "Team name is required." });
             }
 
-            // Validate coach exists and get the User ID
-            var coach = await db.Coaches.FirstOrDefaultAsync(c => c.CoachId == request.CoachId);
-            if (coach == null)
+            // Validate coach exists and get the User ID (if coach is provided)
+            Coach? coach = null;
+            if (request.CoachId.HasValue)
             {
-                return Results.BadRequest(new { error = "Selected coach not found." });
+                coach = await db.Coaches.FirstOrDefaultAsync(c => c.CoachId == request.CoachId.Value);
+                if (coach == null)
+                {
+                    return Results.BadRequest(new { error = "Selected coach not found." });
+                }
             }
 
             // Check for duplicate team name
@@ -213,13 +217,21 @@ public static class AthleticDirectorEndpoints
                 Division = request.Division,
                 Conference = request.Conference,
                 IsPublic = request.IsPublic,
-                CoachId = coach.UserId, // Use the coach's UserId, not the CoachId
+                CoachId = coach?.UserId, // Use the coach's UserId if provided, null otherwise
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
 
             db.Teams.Add(team);
             await db.SaveChangesAsync();
+
+            // Update the coach's TeamId to point to this new team (if coach was provided)
+            if (coach != null)
+            {
+                coach.TeamId = team.TeamId;
+                coach.UpdatedAt = DateTime.UtcNow;
+                await db.SaveChangesAsync();
+            }
 
             return Results.Created($"/api/teams/{team.TeamId}", new
             {
@@ -287,13 +299,27 @@ public static class AthleticDirectorEndpoints
                 team.IsPublic = request.IsPublic.Value;
             if (request.CoachId.HasValue)
             {
-                // Validate coach exists and get the User ID
-                var coach = await db.Coaches.FirstOrDefaultAsync(c => c.CoachId == request.CoachId.Value);
-                if (coach == null)
+                // If there was a previous coach, remove their team assignment
+                if (team.CoachId.HasValue)
+                {
+                    var previousCoach = await db.Coaches.FirstOrDefaultAsync(c => c.UserId == team.CoachId.Value);
+                    if (previousCoach != null)
+                    {
+                        previousCoach.TeamId = null;
+                        previousCoach.UpdatedAt = DateTime.UtcNow;
+                    }
+                }
+
+                // Validate new coach exists and get the User ID
+                var newCoach = await db.Coaches.FirstOrDefaultAsync(c => c.CoachId == request.CoachId.Value);
+                if (newCoach == null)
                 {
                     return Results.BadRequest(new { error = "Coach not found." });
                 }
-                team.CoachId = coach.UserId; // Use the coach's UserId, not the CoachId
+                
+                team.CoachId = newCoach.UserId; // Use the coach's UserId, not the CoachId
+                newCoach.TeamId = team.TeamId; // Update coach's team assignment
+                newCoach.UpdatedAt = DateTime.UtcNow;
             }
 
             team.UpdatedAt = DateTime.UtcNow;

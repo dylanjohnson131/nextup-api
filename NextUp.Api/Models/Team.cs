@@ -36,8 +36,7 @@ namespace NextUp.Models
         [MaxLength(100)]
         public string? Conference { get; set; }
 
-        [Required]
-        public int CoachId { get; set; }
+        public int? CoachId { get; set; }
 
         public bool IsPublic { get; set; } = true;
 
@@ -46,7 +45,7 @@ namespace NextUp.Models
 
         // Navigation properties
         [ForeignKey("CoachId")]
-        public User Coach { get; set; }
+        public User? Coach { get; set; }
 
         public ICollection<Player> Players { get; set; }
         public ICollection<Game> HomeGames { get; set; }
