@@ -10,6 +10,17 @@ namespace NextUp.Api.Endpoints
         public static void MapTeamEndpoints(this WebApplication app)
         {
             var teamGroup = app.MapGroup("/api/teams");
+            // DELETE /api/teams/{id}
+            teamGroup.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
+            {
+                var team = await db.Teams.Include(t => t.Players).FirstOrDefaultAsync(t => t.TeamId == id);
+                if (team == null)
+                    return Results.NotFound(new { error = $"Team with ID {id} not found." });
+                // Optionally: Remove players or set their TeamId to null
+                db.Teams.Remove(team);
+                await db.SaveChangesAsync();
+                return Results.Ok(new { message = $"Team {id} deleted." });
+            });
             teamGroup.MapGet("/", async (NextUpDbContext db) =>
             {
                 var teams = await db.Teams
@@ -260,6 +271,8 @@ namespace NextUp.Api.Endpoints
                 int wins = 0, losses = 0, ties = 0;
                 foreach (var game in recentGames)
                 {
+                    // Only count games that have been played (scores are not null)
+                    // If HomeScore or AwayScore are nullable, use .GetValueOrDefault(), otherwise use directly
                     bool isHome = game.HomeTeamId == team.TeamId;
                     int teamScore = isHome ? game.HomeScore : game.AwayScore;
                     int opponentScore = isHome ? game.AwayScore : game.HomeScore;
@@ -374,7 +387,7 @@ namespace NextUp.Api.Endpoints
                     CoachName = $"{coachUser.FirstName} {coachUser.LastName}",
                     CoachEmail = coachUser.Email
                 });
-            }).RequireAuthorization("CoachOnly");
+            }).RequireAuthorization("AthleticDirectorOnly");
             teamGroup.MapPut("/{id:int}", async (int id, UpdateTeamRequest request, NextUpDbContext db) =>
             {
                 var team = await db.Teams.FindAsync(id);

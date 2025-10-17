@@ -248,6 +248,7 @@ public static class AthleticDirectorEndpoints
                 team.IsPublic = request.IsPublic.Value;
             if (request.CoachId.HasValue)
             {
+                // Assign a new coach
                 if (team.CoachId.HasValue)
                 {
                     var previousCoach = await db.Coaches.FirstOrDefaultAsync(c => c.UserId == team.CoachId.Value);
@@ -266,6 +267,20 @@ public static class AthleticDirectorEndpoints
                 newCoach.TeamId = team.TeamId;
                 newCoach.UpdatedAt = DateTime.UtcNow;
             }
+            else if (request.CoachId == null)
+            {
+                // Unassign coach if CoachId is explicitly null
+                if (team.CoachId.HasValue)
+                {
+                    var previousCoach = await db.Coaches.FirstOrDefaultAsync(c => c.UserId == team.CoachId.Value);
+                    if (previousCoach != null)
+                    {
+                        previousCoach.TeamId = null;
+                        previousCoach.UpdatedAt = DateTime.UtcNow;
+                    }
+                }
+                team.CoachId = null;
+            }
             team.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Team updated successfully." });
@@ -283,6 +298,7 @@ public static class AthleticDirectorEndpoints
             }
             var team = await db.Teams
                 .Include(t => t.Players)
+                .Include(t => t.Coach)
                 .Include(t => t.HomeGames)
                 .Include(t => t.AwayGames)
                 .FirstOrDefaultAsync(t => t.TeamId == id);
@@ -293,6 +309,10 @@ public static class AthleticDirectorEndpoints
             if (team.Players.Any())
             {
                 return Results.BadRequest(new { error = "Cannot delete team with active players. Please transfer players first." });
+            }
+            if (team.Coach != null)
+            {
+                return Results.BadRequest(new { error = "Cannot delete team with a coach assigned. Please unassign the coach first." });
             }
             if (team.HomeGames.Any() || team.AwayGames.Any())
             {

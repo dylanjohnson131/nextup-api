@@ -35,6 +35,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("CoachOnly", policy => policy.RequireClaim(ClaimTypes.Role, User.COACH_ROLE));
     options.AddPolicy("PlayerOnly", policy => policy.RequireClaim(ClaimTypes.Role, User.PLAYER_ROLE));
+    options.AddPolicy("AthleticDirectorOnly", policy => policy.RequireClaim(ClaimTypes.Role, User.ATHLETIC_DIRECTOR_ROLE));
 });
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddEndpointsApiExplorer();
