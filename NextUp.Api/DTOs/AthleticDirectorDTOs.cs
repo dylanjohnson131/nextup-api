@@ -32,6 +32,7 @@ public record CreateTeamByAdRequest(
     string? State,
     string? Division,
     string? Conference,
+    int CoachId,
     bool IsPublic = true
 );
 

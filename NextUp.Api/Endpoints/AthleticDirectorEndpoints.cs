@@ -143,6 +143,7 @@ public static class AthleticDirectorEndpoints
             }
 
             var teams = await db.Teams
+                .Include(t => t.Coach)
                 .Select(t => new
                 {
                     t.TeamId,
@@ -155,6 +156,12 @@ public static class AthleticDirectorEndpoints
                     t.Division,
                     t.Conference,
                     t.IsPublic,
+                    t.CoachId,
+                    Coach = t.Coach != null ? new {
+                        CoachId = t.CoachId,
+                        Name = $"{t.Coach.FirstName} {t.Coach.LastName}",
+                        Email = t.Coach.Email
+                    } : null,
                     t.CreatedAt
                 })
                 .ToListAsync();
@@ -176,9 +183,16 @@ public static class AthleticDirectorEndpoints
                 return Results.Forbid();
             }
 
-            if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Location))
+            if (string.IsNullOrWhiteSpace(request.Name))
             {
-                return Results.BadRequest(new { error = "Name and Location are required." });
+                return Results.BadRequest(new { error = "Team name is required." });
+            }
+
+            // Validate coach exists
+            var coachExists = await db.Coaches.AnyAsync(c => c.CoachId == request.CoachId);
+            if (!coachExists)
+            {
+                return Results.BadRequest(new { error = "Selected coach not found." });
             }
 
             // Check for duplicate team name
@@ -199,7 +213,7 @@ public static class AthleticDirectorEndpoints
                 Division = request.Division,
                 Conference = request.Conference,
                 IsPublic = request.IsPublic,
-                CoachId = 0, // Temporary placeholder - will be updated when coach is assigned
+                CoachId = request.CoachId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
