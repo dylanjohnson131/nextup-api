@@ -560,10 +560,15 @@ public static class AthleticDirectorEndpoints
                 return Results.NotFound(new { error = "Game not found." });
             }
 
-            // Don't allow deletion of games with recorded stats
+            // Remove associated data before deleting the game
             if (game.PlayerStats.Any())
             {
-                return Results.BadRequest(new { error = "Cannot delete game with recorded statistics." });
+                db.PlayerGameStats.RemoveRange(game.PlayerStats);
+            }
+            
+            if (game.GameNotes.Any())
+            {
+                db.GameNotes.RemoveRange(game.GameNotes);
             }
 
             db.Games.Remove(game);
