@@ -32,8 +32,9 @@ public static class GameEndpoints
             var upcomingGames = await db.Games
                 .Include(g => g.HomeTeam)
                 .Include(g => g.AwayTeam)
-                .Where(g => (g.HomeTeamId == teamId || g.AwayTeamId == teamId) 
-                           && g.GameDate > DateTime.UtcNow 
+                .Where(g => (g.HomeTeamId == teamId || g.AwayTeamId == teamId)
+                           && g.HomeTeamId != g.AwayTeamId // Exclude self-matches
+                           && g.GameDate > DateTime.UtcNow
                            && g.Status == "Scheduled")
                 .OrderBy(g => g.GameDate)
                 .Take(5)
