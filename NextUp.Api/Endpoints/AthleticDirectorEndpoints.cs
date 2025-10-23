@@ -344,6 +344,7 @@ public static class AthleticDirectorEndpoints
                     AwayTeam = new { g.AwayTeam.TeamId, g.AwayTeam.Name },
                     g.GameDate,
                     g.Location,
+                    g.Week,
                     IsCompleted = g.Status == "Completed",
                     g.CreatedAt
                 })
@@ -451,6 +452,14 @@ public static class AthleticDirectorEndpoints
                 game.Location = request.Location;
             if (!string.IsNullOrWhiteSpace(request.Status))
                 game.Status = request.Status;
+            if (request.Week.HasValue)
+                game.Week = request.Week;
+            if (!string.IsNullOrWhiteSpace(request.Season))
+                game.Season = request.Season;
+            if (request.HomeScore.HasValue)
+                game.HomeScore = request.HomeScore.Value;
+            if (request.AwayScore.HasValue)
+                game.AwayScore = request.AwayScore.Value;
             game.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Game updated successfully." });

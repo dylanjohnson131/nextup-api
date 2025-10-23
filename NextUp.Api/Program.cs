@@ -33,6 +33,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("CoachOrAD", policy => policy.RequireClaim(ClaimTypes.Role, User.COACH_ROLE, User.ATHLETIC_DIRECTOR_ROLE));
     options.AddPolicy("CoachOnly", policy => policy.RequireClaim(ClaimTypes.Role, User.COACH_ROLE));
     options.AddPolicy("PlayerOnly", policy => policy.RequireClaim(ClaimTypes.Role, User.PLAYER_ROLE));
     options.AddPolicy("AthleticDirectorOnly", policy => policy.RequireClaim(ClaimTypes.Role, User.ATHLETIC_DIRECTOR_ROLE));

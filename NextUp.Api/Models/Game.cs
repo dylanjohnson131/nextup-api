@@ -15,16 +15,17 @@ namespace NextUp.Models
         public int AwayTeamId { get; set; }
         [Required]
         public DateTime GameDate { get; set; }
-        [MaxLength(255)]
-        public string Location { get; set; }
-        public int HomeScore { get; set; } = 0;
-        public int AwayScore { get; set; } = 0;
-        [MaxLength(20)]
-        public string Status { get; set; } = "Scheduled";
-        [MaxLength(20)]
-        public string Season { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    [MaxLength(255)]
+    public string Location { get; set; }
+    public int HomeScore { get; set; } = 0;
+    public int AwayScore { get; set; } = 0;
+    [MaxLength(20)]
+    public string Status { get; set; } = "Scheduled";
+    [MaxLength(20)]
+    public string Season { get; set; }
+    public int? Week { get; set; } // Added for week-based scheduling
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         [ForeignKey("HomeTeamId")]
         public Team HomeTeam { get; set; }
         [ForeignKey("AwayTeamId")]

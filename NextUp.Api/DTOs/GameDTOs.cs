@@ -4,12 +4,14 @@ public record CreateGameRequest(
     int AwayTeamId,
     DateTime GameDate,
     string Location,
-    string Season
+    string Season,
+    int? Week
 );
 public record UpdateGameRequest(
     DateTime? GameDate,
     string? Location,
     int? HomeScore,
     int? AwayScore,
-    string? Status
+    string? Status,
+    int? Week
 );

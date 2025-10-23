@@ -53,7 +53,11 @@ public record UpdateGameByAdRequest(
     int? AwayTeamId,
     DateTime? GameDate,
     string? Location,
-    string? Status
+    string? Status,
+    int? Week,
+    string? Season,
+    int? HomeScore,
+    int? AwayScore
 );
 public record SeasonOverviewResponse(
     int TotalTeams,

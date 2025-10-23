@@ -23,6 +23,7 @@ public static class GameEndpoints
                 g.AwayScore,
                 g.Status,
                 g.Season,
+                g.Week,
                 HomeTeam = new { g.HomeTeamId, g.HomeTeam.Name, g.HomeTeam.Location },
                 AwayTeam = new { g.AwayTeamId, g.AwayTeam.Name, g.AwayTeam.Location }
             }));
@@ -73,6 +74,7 @@ public static class GameEndpoints
                 game.AwayScore,
                 game.Status,
                 game.Season,
+                game.Week,
                 HomeTeam = new { game.HomeTeamId, game.HomeTeam.Name, game.HomeTeam.Location },
                 AwayTeam = new { game.AwayTeamId, game.AwayTeam.Name, game.AwayTeam.Location },
                 StatsCount = game.PlayerStats?.Count ?? 0,
@@ -96,7 +98,8 @@ public static class GameEndpoints
                 Season = request.Season,
                 Status = "Scheduled",
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Week = request.Week
             };
             db.Games.Add(game);
             await db.SaveChangesAsync();
@@ -106,12 +109,14 @@ public static class GameEndpoints
                 game.GameDate,
                 game.Location,
                 game.Season,
+                game.Week,
                 HomeTeam = new { home.TeamId, home.Name },
                 AwayTeam = new { away.TeamId, away.Name }
             });
-        }).RequireAuthorization("CoachOnly");
+    }).RequireAuthorization("CoachOrAD");
     group.MapPut("/{id:int}", async (int id, UpdateGameRequest request, NextUpDbContext db) =>
         {
+            Console.WriteLine($"[DEBUG] UpdateGameRequest: Week={{request.Week}}, GameDate={{request.GameDate}}, HomeScore={{request.HomeScore}}, AwayScore={{request.AwayScore}} ");
             var game = await db.Games.FindAsync(id);
             if (game == null)
                 return Results.NotFound(new { error = $"Game with ID {id} not found." });
@@ -120,10 +125,14 @@ public static class GameEndpoints
             if (request.HomeScore.HasValue) game.HomeScore = request.HomeScore.Value;
             if (request.AwayScore.HasValue) game.AwayScore = request.AwayScore.Value;
             if (request.Status != null) game.Status = request.Status;
+            if (request.Week.HasValue) {
+                game.Week = request.Week;
+                db.Entry(game).Property(g => g.Week).IsModified = true;
+            }
             game.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
-            return Results.Ok(new { message = "Game updated", game.GameId, game.GameDate, game.Location, game.HomeScore, game.AwayScore, game.Status });
-        }).RequireAuthorization("CoachOnly");
+            return Results.Ok(new { message = "Game updated", game.GameId, game.GameDate, game.Location, game.HomeScore, game.AwayScore, game.Status, game.Week });
+    }).RequireAuthorization("CoachOrAD");
     group.MapDelete("/{id:int}", async (int id, NextUpDbContext db) =>
         {
             var game = await db.Games
@@ -139,6 +148,6 @@ public static class GameEndpoints
             db.Games.Remove(game);
             await db.SaveChangesAsync();
             return Results.Ok(new { message = $"Game {id} deleted." });
-        }).RequireAuthorization("CoachOnly");
+    }).RequireAuthorization("CoachOrAD");
     }
 }
