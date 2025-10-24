@@ -187,7 +187,6 @@ namespace NextUp.Api.Endpoints
                             CreatedAt = DateTime.UtcNow,
                             UpdatedAt = DateTime.UtcNow,
                             PassingAttempts = request.PassingAttempts ?? 0,
-                            CompletionPercentage = request.CompletionPercentage ?? 0,
                             YardsPerPassAttempt = request.YardsPerPassAttempt ?? 0,
                             LongestPass = request.LongestPass ?? 0,
                             Sacked = request.Sacked ?? 0,
@@ -220,6 +219,11 @@ namespace NextUp.Api.Endpoints
                             LongestFieldGoal = request.LongestFieldGoal ?? 0,
                             BlockedKicks = request.BlockedKicks ?? 0
                         };
+                        // Calculate completion percentage
+                        if (stats.PassingAttempts > 0)
+                            stats.CompletionPercentage = (double)stats.Completions / stats.PassingAttempts * 100;
+                        else
+                            stats.CompletionPercentage = 0;
                         db.PlayerGameStats.Add(stats);
                     }
                     else
@@ -250,7 +254,6 @@ namespace NextUp.Api.Endpoints
                         stats.MinutesPlayed = request.MinutesPlayed ?? stats.MinutesPlayed;
                         stats.UpdatedAt = DateTime.UtcNow;
                         stats.PassingAttempts = request.PassingAttempts ?? stats.PassingAttempts;
-                        // CompletionPercentage is now calculated in frontend, not set by coach
                         stats.YardsPerPassAttempt = request.YardsPerPassAttempt ?? stats.YardsPerPassAttempt;
                         stats.LongestPass = request.LongestPass ?? stats.LongestPass;
                         stats.Sacked = request.Sacked ?? stats.Sacked;
@@ -282,6 +285,11 @@ namespace NextUp.Api.Endpoints
                         stats.FieldGoalAttempts = request.FieldGoalAttempts ?? stats.FieldGoalAttempts;
                         stats.LongestFieldGoal = request.LongestFieldGoal ?? stats.LongestFieldGoal;
                         stats.BlockedKicks = request.BlockedKicks ?? stats.BlockedKicks;
+                        // Calculate completion percentage
+                        if (stats.PassingAttempts > 0)
+                            stats.CompletionPercentage = (double)stats.Completions / stats.PassingAttempts * 100;
+                        else
+                            stats.CompletionPercentage = 0;
                     }
                     await db.SaveChangesAsync();
                     return Results.Ok(new { message = "Stats saved", stats.PlayerGameStatsId });
