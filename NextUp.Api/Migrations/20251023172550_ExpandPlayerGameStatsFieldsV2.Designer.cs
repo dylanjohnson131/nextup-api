@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NextUp.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NextUp.Api.Migrations
 {
     [DbContext(typeof(NextUpDbContext))]
-    partial class NextUpDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251023172550_ExpandPlayerGameStatsFieldsV2")]
+    partial class ExpandPlayerGameStatsFieldsV2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -286,17 +289,14 @@ namespace NextUp.Api.Migrations
                     b.Property<int>("Assists")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("BlockedKicks")
+                    b.Property<int>("BlockedKicks")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CleanSnaps")
+                    b.Property<int>("CleanSnaps")
                         .HasColumnType("integer");
 
-                    b.Property<double?>("CompletionPercentage")
+                    b.Property<double>("CompletionPercentage")
                         .HasColumnType("double precision");
-
-                    b.Property<int>("Completions")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -307,10 +307,10 @@ namespace NextUp.Api.Migrations
                     b.Property<int>("ExtraPointsMade")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("FieldGoalAttempts")
+                    b.Property<int>("FieldGoalAttempts")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("FieldGoalMade")
+                    b.Property<int>("FieldGoalMade")
                         .HasColumnType("integer");
 
                     b.Property<int>("FieldGoalsAttempted")
@@ -322,16 +322,16 @@ namespace NextUp.Api.Migrations
                     b.Property<int>("ForcedFumbles")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Fumbles")
+                    b.Property<int>("Fumbles")
                         .HasColumnType("integer");
 
                     b.Property<int>("GameId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("InterceptionReturnTouchDown")
+                    b.Property<int>("InterceptionReturnTouchDown")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("InterceptionReturnYards")
+                    b.Property<int>("InterceptionReturnYards")
                         .HasColumnType("integer");
 
                     b.Property<int>("Interceptions")
@@ -340,28 +340,28 @@ namespace NextUp.Api.Migrations
                     b.Property<int>("InterceptionsDef")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("LongestFieldGoal")
+                    b.Property<int>("LongestFieldGoal")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("LongestPass")
+                    b.Property<int>("LongestPass")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("LongestReception")
+                    b.Property<int>("LongestReception")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("LongestRushing")
+                    b.Property<int>("LongestRushing")
                         .HasColumnType("integer");
 
                     b.Property<int>("MinutesPlayed")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("PancakeBlocks")
+                    b.Property<int>("PancakeBlocks")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("PassBreakups")
+                    b.Property<int>("PassBreakups")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("PassingAttempts")
+                    b.Property<int>("PassingAttempts")
                         .HasColumnType("integer");
 
                     b.Property<int>("PassingTouchdowns")
@@ -370,20 +370,16 @@ namespace NextUp.Api.Migrations
                     b.Property<int>("PassingYards")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Penalties")
+                    b.Property<int>("Penalties")
                         .HasColumnType("integer");
 
                     b.Property<int>("PlayerId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Position")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("Pressures")
+                    b.Property<int>("Pressures")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ReceivingTDs")
+                    b.Property<int>("ReceivingTDs")
                         .HasColumnType("integer");
 
                     b.Property<int>("ReceivingTouchdowns")
@@ -398,10 +394,10 @@ namespace NextUp.Api.Migrations
                     b.Property<int?>("RecordedBy")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("RushingAttempts")
+                    b.Property<int>("RushingAttempts")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("RushingTDs")
+                    b.Property<int>("RushingTDs")
                         .HasColumnType("integer");
 
                     b.Property<int>("RushingTouchdowns")
@@ -410,55 +406,52 @@ namespace NextUp.Api.Migrations
                     b.Property<int>("RushingYards")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Sacked")
+                    b.Property<int>("Sacked")
                         .HasColumnType("integer");
 
                     b.Property<int>("Sacks")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("SacksAllowed")
+                    b.Property<int>("SacksAllowed")
                         .HasColumnType("integer");
 
-                    b.Property<double?>("SnapAccuracy")
+                    b.Property<double>("SnapAccuracy")
                         .HasColumnType("double precision");
 
-                    b.Property<int?>("SnapsPlayed")
+                    b.Property<int>("SnapsPlayed")
                         .HasColumnType("integer");
 
                     b.Property<int>("Tackles")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TacklesForLoss")
+                    b.Property<int>("TacklesForLoss")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Targets")
+                    b.Property<int>("Targets")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TotalSnaps")
+                    b.Property<int>("TotalSnaps")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TotalTackles")
+                    b.Property<int>("TotalTackles")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Touchbacks")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Touchdowns")
+                    b.Property<int>("Touchbacks")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double?>("YardsPerPassAttempt")
+                    b.Property<double>("YardsPerPassAttempt")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("YardsPerPunt")
+                    b.Property<double>("YardsPerPunt")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("YardsPerReception")
+                    b.Property<double>("YardsPerReception")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("YardsPerRushAttempt")
+                    b.Property<double>("YardsPerRushAttempt")
                         .HasColumnType("double precision");
 
                     b.HasKey("PlayerGameStatsId");

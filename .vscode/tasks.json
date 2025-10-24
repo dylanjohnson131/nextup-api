@@ -1,17 +1,32 @@
 {
-   "version": "2.0.0",
-   "tasks": [
-       {
-           "label": "build",
-           "command": "dotnet",
-           "type": "process",
-           "args": [
-               "build",
-               "${workspaceFolder}/NextUp.Api/NextUp.Api.csproj",
-               "/property:GenerateFullPaths=true",
-               "/consoleloggerparameters:NoSummary"
-           ],
-           "problemMatcher": "$msCompile"
-       }
-   ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/NextUp.Api/NextUp.Api.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "Run NextUp API",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"run",
+				"--project",
+				"NextUp.Api/NextUp.Api.csproj"
+			],
+			"isBackground": true,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		}
+	]
 }
