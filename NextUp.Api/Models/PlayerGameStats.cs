@@ -30,7 +30,7 @@ namespace NextUp.Models
         public int ExtraPointsMade { get; set; } = 0;
         public int ExtraPointsAttempted { get; set; } = 0;
         public int MinutesPlayed { get; set; } = 0;
-        // QB specific stats
+
         public int Completions { get; set; } = 0;
         public int Touchdowns { get; set; } = 0;
         public int? PassingAttempts { get; set; }

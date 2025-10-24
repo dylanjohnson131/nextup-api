@@ -248,7 +248,6 @@ public static class AthleticDirectorEndpoints
                 team.IsPublic = request.IsPublic.Value;
             if (request.CoachId.HasValue)
             {
-                // Assign a new coach
                 if (team.CoachId.HasValue)
                 {
                     var previousCoach = await db.Coaches.FirstOrDefaultAsync(c => c.UserId == team.CoachId.Value);
@@ -269,7 +268,6 @@ public static class AthleticDirectorEndpoints
             }
             else if (request.CoachId == null)
             {
-                // Unassign coach if CoachId is explicitly null
                 if (team.CoachId.HasValue)
                 {
                     var previousCoach = await db.Coaches.FirstOrDefaultAsync(c => c.UserId == team.CoachId.Value);

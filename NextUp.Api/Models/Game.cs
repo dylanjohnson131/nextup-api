@@ -23,7 +23,7 @@ namespace NextUp.Models
     public string Status { get; set; } = "Scheduled";
     [MaxLength(20)]
     public string Season { get; set; }
-    public int? Week { get; set; } // Added for week-based scheduling
+    public int? Week { get; set; } 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         [ForeignKey("HomeTeamId")]

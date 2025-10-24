@@ -6,7 +6,6 @@ namespace NextUp.Api.Endpoints
 {
     public static class StatsEndpoints
     {
-        // Hardcoded mapping of position to relevant stat fields
         private static readonly Dictionary<string, string[]> PositionStatsMap = new()
         {
             ["QB"] = new[] { "Completions", "PassingAttempts", "CompletionPercentage", "YardsPerPassAttempt", "Touchdowns", "Interceptions", "LongestPass", "Sacked", "RushingYards", "Penalties" },
@@ -88,7 +87,6 @@ namespace NextUp.Api.Endpoints
                 }));
             });
 
-            // New endpoint: Get stats for a specific player and game
             group.MapGet("/game/{gameId:int}/player/{playerId:int}", async (int gameId, int playerId, NextUpDbContext db) =>
             {
                 var s = await db.PlayerGameStats
@@ -154,13 +152,11 @@ namespace NextUp.Api.Endpoints
                         return Results.BadRequest(new { error = "Player or Game not found." });
                     }
 
-                    // Check if stats already exist for this player/game
                     var stats = await db.PlayerGameStats.FirstOrDefaultAsync(s => s.PlayerId == playerId && s.GameId == gameId);
                     if (stats == null)
                     {
                         Console.WriteLine($"[StatsEndpoints] Creating new stats for PlayerId: {playerId}, GameId: {gameId}");
                         Console.WriteLine($"[StatsEndpoints] Incoming request: {System.Text.Json.JsonSerializer.Serialize(request)}");
-                        // Create new stats
                         stats = new PlayerGameStats
                         {
                             PlayerId = playerId,
@@ -219,7 +215,6 @@ namespace NextUp.Api.Endpoints
                             LongestFieldGoal = request.LongestFieldGoal ?? 0,
                             BlockedKicks = request.BlockedKicks ?? 0
                         };
-                        // Calculate completion percentage
                         if (stats.PassingAttempts > 0)
                             stats.CompletionPercentage = (double)stats.Completions / stats.PassingAttempts * 100;
                         else
@@ -230,7 +225,7 @@ namespace NextUp.Api.Endpoints
                     {
                         Console.WriteLine($"[StatsEndpoints] Updating stats for PlayerId: {playerId}, GameId: {gameId}");
                         Console.WriteLine($"[StatsEndpoints] Incoming request: {System.Text.Json.JsonSerializer.Serialize(request)}");
-                        // Update existing stats
+
                         stats.Position = player.Position ?? stats.Position;
                         stats.PassingYards = request.PassingYards ?? stats.PassingYards;
                         stats.PassingTouchdowns = request.PassingTouchdowns ?? stats.PassingTouchdowns;
@@ -285,7 +280,7 @@ namespace NextUp.Api.Endpoints
                         stats.FieldGoalAttempts = request.FieldGoalAttempts ?? stats.FieldGoalAttempts;
                         stats.LongestFieldGoal = request.LongestFieldGoal ?? stats.LongestFieldGoal;
                         stats.BlockedKicks = request.BlockedKicks ?? stats.BlockedKicks;
-                        // Calculate completion percentage
+                      
                         if (stats.PassingAttempts > 0)
                             stats.CompletionPercentage = (double)stats.Completions / stats.PassingAttempts * 100;
                         else

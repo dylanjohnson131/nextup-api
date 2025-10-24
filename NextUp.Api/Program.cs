@@ -94,7 +94,7 @@ app.MapPost("/auth/login", async (LoginRequest request, NextUpDbContext db, IPas
 app.MapPost("/auth/logout", async (HttpContext httpContext) =>
 {
     await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    // Explicitly expire the cookie for extra reliability
+
     httpContext.Response.Cookies.Append(".AspNetCore.Cookies", "", new CookieOptions
     {
         Expires = DateTimeOffset.UtcNow.AddDays(-1),

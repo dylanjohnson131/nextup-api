@@ -7,7 +7,6 @@ namespace NextUp.Data
     {
         public static async Task SeedAsync(NextUpDbContext context, IPasswordService passwordService)
         {
-            // Only seed an initial athletic director if none exists
             if (!await context.Users.AnyAsync(u => u.Role == User.ATHLETIC_DIRECTOR_ROLE))
             {
                 var athleticDirectorUser = new User
