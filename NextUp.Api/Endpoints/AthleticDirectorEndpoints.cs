@@ -385,7 +385,8 @@ public static class AthleticDirectorEndpoints
                 Season = request.Season,
                 Status = "Scheduled",
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Week = request.Week
             };
             db.Games.Add(game);
             await db.SaveChangesAsync();
